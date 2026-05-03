@@ -1,0 +1,19 @@
+# Copy to chat_routes.yaml and edit. Maps inbound chats to (client, project).
+#
+# - source: telegram | whatsapp
+#   chat_id: numeric (Telegram) or full JID (WhatsApp, e.g. 12025550100@s.whatsapp.net)
+#   client / project: must match an existing slug under vault/clients/
+#
+# If a chat does not match any route here, OPENCLAW_DEFAULT_CLIENT/PROJECT
+# from .env is used. If unset, events land in vault/clients/_unrouted/.
+
+routes:
+  - source: telegram
+    chat_id: 123456789
+    client: acme
+    project: digital-platform
+
+  - source: whatsapp
+    chat_id: 12025550100@s.whatsapp.net
+    client: acme
+    project: digital-platform

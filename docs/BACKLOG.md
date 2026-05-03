@@ -39,25 +39,26 @@ slice, P1 = first useful surface, P2 = polish/scale.
 | OC-017 | E4 | End-to-end CLI driver: `openclaw run-slice` |
 
 ### P1 — first useful surface
-| ID | Epic | Title |
-|---|---|---|
-| OC-018 | E6 | FastAPI skeleton + HTMX board route |
-| OC-019 | E6 | Ticket detail view + approval button |
-| OC-020 | E6 | Audit timeline view |
-| OC-021 | E5 | Memory-Curator agent (extract facts → per-client memory.md + Qdrant) |
-| OC-022 | E5 | Briefer agent (CxO briefing markdown) |
-| OC-023 | E7 | Telegram bridge (inbound events → ticket prompts) |
-| OC-024 | E3 | Cross-client leakage tests (collection-isolation invariants) |
-| OC-025 | E8 | Docker Compose for llama-servers + Qdrant + dashboard |
+| ID | Epic | Title | Status |
+|---|---|---|---|
+| OC-018 | E6 | FastAPI skeleton + HTMX board route | pending |
+| OC-019 | E6 | Ticket detail view + approval button | pending |
+| OC-020 | E6 | Audit timeline view | pending |
+| OC-021 | E5 | Memory-Curator agent (extract facts → per-client memory.md + Qdrant) | pending |
+| OC-022 | E5 | Briefer agent (CxO briefing markdown) | pending |
+| OC-022b | E7 | Shared ingest pipeline (event MD + SQLite + Qdrant + spawn rules) | **done** |
+| OC-023 | E7 | Telegram bridge (polling inbound + REST outbound) | **done** |
+| OC-024 | E3 | Cross-client leakage tests (collection-isolation invariants) | done (in test_collection_isolation) |
+| OC-025 | E8 | Docker Compose for llama-servers + Qdrant + dashboard | pending |
 
 ### P2 — polish / scale
-| ID | Epic | Title |
-|---|---|---|
-| OC-026 | E7 | WhatsApp Cloud API bridge |
-| OC-027 | E7 | SearXNG monitor scheduler (per-client query packs) |
-| OC-028 | E8 | Cloudflared Tunnel + Cloudflare Access front for dashboard |
-| OC-029 | E6 | Per-client filter + memory inspector |
-| OC-030 | E4 | Replay tool: re-run an audit trace deterministically |
+| ID | Epic | Title | Status |
+|---|---|---|---|
+| OC-026 | E7 | WhatsApp bridge via wuzapi (OSS, FastAPI webhook + REST send) | **done** |
+| OC-027 | E7 | SearXNG monitor scheduler (per-client query packs) | pending |
+| OC-028 | E8 | Cloudflared Tunnel + Cloudflare Access front for dashboard | pending |
+| OC-029 | E6 | Per-client filter + memory inspector | pending |
+| OC-030 | E4 | Replay tool: re-run an audit trace deterministically | pending |
 
 ## Dependency graph (textual)
 ```

@@ -66,6 +66,14 @@ def transition(client: str, project: str, ticket_id: str,
     dst_path.write_text(yaml.safe_dump(t.model_dump(), sort_keys=False))
     src_path.unlink()
     sqlite_store.upsert_ticket(t.model_dump())
+
+    if target_state == "awaiting_approval":
+        try:
+            from . import notify
+            notify.notify_awaiting_approval(t)
+        except Exception:
+            pass
+
     return t
 
 

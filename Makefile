@@ -1,4 +1,5 @@
-.PHONY: bootstrap install seed slice approve test clean llama-chat llama-embed healthz
+.PHONY: bootstrap install seed slice approve test clean llama-chat llama-embed healthz \
+        telegram-bridge wa-bridge wuzapi
 
 PY=.venv/bin/python
 PIP=.venv/bin/pip
@@ -35,3 +36,12 @@ llama-embed:
 
 healthz:
 	bash scripts/healthz.sh
+
+telegram-bridge:
+	bash scripts/telegram_bridge.sh
+
+wa-bridge:
+	bash scripts/wa_bridge.sh
+
+wuzapi:
+	bash scripts/wuzapi.sh
