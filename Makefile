@@ -1,5 +1,5 @@
 .PHONY: bootstrap install seed slice approve test clean llama-chat llama-embed healthz \
-        telegram-bridge wa-bridge wuzapi
+        telegram-bridge wa-bridge wuzapi dashboard
 
 PY=.venv/bin/python
 PIP=.venv/bin/pip
@@ -45,3 +45,6 @@ wa-bridge:
 
 wuzapi:
 	bash scripts/wuzapi.sh
+
+dashboard:
+	bash scripts/dashboard.sh

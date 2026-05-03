@@ -22,12 +22,27 @@ This repository is in **Phase A** — design artifacts only, no code yet.
 make bootstrap          # create venv, install package + dev deps
 make slice              # seed → run-slice (implementer + reviewer + awaiting_approval)
 make approve            # approve --apply → done → tasks repo commit
-make test               # 16 tests, all green
+make test               # 24 tests, all green
+make dashboard          # http://127.0.0.1:8091 — kanban + ticket detail + audit timeline
 ```
 
 By default, the slice runs in `OPENCLAW_LLM_MODE=stub` (deterministic local
 responder) so it works without a llama-server up. See `vault/shared/MODEL_NOTES.md`
 for the live-mode steps.
+
+## Dashboard
+
+`make dashboard` boots a FastAPI + HTMX UI on `http://127.0.0.1:8091`:
+
+- **Engagements** (`/`) — one row per (client, project), with state counts.
+- **Board** (`/board?client=…&project=…`) — kanban columns; auto-refreshes every 10s.
+- **Ticket detail** (`/tickets/{id}?client=…&project=…`):
+  - **Run slice** button — implementer + reviewer + transition to awaiting_approval.
+  - **Approve** button (with "apply suggestions" toggle) — promotes draft to artifact, commits to project branch.
+  - **Audit timeline** — every run with click-to-inspect raw JSON.
+
+UI assets (Tailwind, HTMX, Alpine) load from CDN. Behind a Cloudflared Tunnel
++ Cloudflare Access for remote use (OC-028, deferred).
 
 ## Chat bridges (Telegram + WhatsApp)
 

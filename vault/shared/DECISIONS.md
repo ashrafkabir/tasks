@@ -28,6 +28,23 @@ approval gate → git commit) without depending on a model load. Stub responses 
 plainly tagged in the audit trace ("llm_mode": "stub"), so they cannot be confused
 with live output downstream.
 
+## 2026-05-03 — Dashboard: FastAPI + Jinja2 + HTMX + Alpine + Tailwind (CDN)
+
+**OC-018/019/020.** Single FastAPI app on `:8091`, separate from the bridges
+server `:8090`, separate lifecycles. Server-rendered Jinja2 templates with
+HTMX swaps for the run/approve buttons and Alpine for tiny per-row state
+(audit "inspect" expanders, "apply suggestions" toggle).
+
+UI assets via CDN (`cdn.tailwindcss.com`, `unpkg.com/htmx.org`,
+`unpkg.com/alpinejs`). Local-first concern: only metadata in HTTP requests
+to those CDNs from the operator's browser; nothing about clients ever leaves
+the machine. Easy to vendor locally if desired.
+
+**Service-layer extraction.** Created `openclaw.service` with `run_slice` and
+`approve` so the CLI, both bridges, and the dashboard call the same code path
+and produce identical audit traces. Previously the bridges duplicated the
+slice logic and shelled out to the CLI for approval.
+
 ## 2026-05-03 — Bridges: Telegram (raw HTTP) + WhatsApp via wuzapi (OSS)
 
 **Telegram (OC-023):** raw httpx against Bot API `getUpdates` polling — avoids

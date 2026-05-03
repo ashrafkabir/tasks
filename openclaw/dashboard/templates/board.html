@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Board — {{ client }}/{{ project }}{% endblock %}
+{% block body %}
+<div class="flex items-center mb-4">
+  <div>
+    <h1 class="text-2xl font-bold">{{ client }} / {{ project }}</h1>
+    <p class="text-slate-500 text-sm">Kanban board. Click a ticket for detail and approval.</p>
+  </div>
+  <div class="ml-auto text-sm">
+    <a class="text-slate-500 hover:underline" href="/">← all engagements</a>
+  </div>
+</div>
+
+<div id="board"
+     hx-get="/board/columns?client={{ client }}&project={{ project }}"
+     hx-trigger="every 10s"
+     hx-swap="innerHTML">
+  {% include "_columns.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}OpenClaw{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+  <style>
+    .col-card { @apply bg-white rounded shadow-sm border border-slate-200 p-3 mb-2 hover:shadow transition-shadow; }
+    .col-header { @apply text-xs uppercase tracking-wider font-semibold text-slate-500 mb-2; }
+    .badge-state { @apply text-xs px-2 py-0.5 rounded-full font-medium; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+<header class="bg-slate-900 text-white">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+    <a href="/" class="font-bold tracking-tight text-lg">OpenClaw</a>
+    <span class="text-slate-400 text-sm">local-first agentic OS</span>
+    <nav class="ml-auto text-sm space-x-3">
+      <a href="/" class="hover:text-slate-300">Engagements</a>
+      <a href="/healthz" class="hover:text-slate-300">/healthz</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+  {% block body %}{% endblock %}
+</main>
+
+<footer class="text-xs text-slate-400 text-center py-6">
+  OpenClaw — fully local. No paid APIs, no cloud LLMs, no hosted memory.
+</footer>
+</body>
+</html>

@@ -1,0 +1,148 @@
+{% if flash is defined and flash %}
+<div class="mb-4 px-4 py-2 rounded text-sm
+  {% if flash.ok %}bg-emerald-50 text-emerald-800 border border-emerald-200
+  {% else %}bg-rose-50 text-rose-800 border border-rose-200{% endif %}">
+  {{ flash.msg }}
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+  <!-- left: state + actions -->
+  <div class="bg-white border border-slate-200 rounded shadow-sm p-4 space-y-3">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-500">State</div>
+      <span class="badge-state inline-block mt-1
+        {% if ticket.state == 'backlog' %}bg-slate-200 text-slate-700
+        {% elif ticket.state == 'in_progress' %}bg-blue-100 text-blue-800
+        {% elif ticket.state == 'awaiting_approval' %}bg-amber-100 text-amber-800
+        {% elif ticket.state == 'approved' %}bg-emerald-100 text-emerald-800
+        {% elif ticket.state == 'done' %}bg-slate-200 text-slate-700
+        {% endif %}">{{ ticket.state }}</span>
+    </div>
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-500">Kind</div>
+      <div class="text-sm">{{ ticket.kind }}</div>
+    </div>
+    {% if ticket.source_event %}
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-500">Source event</div>
+      <div class="text-sm font-mono break-all">{{ ticket.source_event }}</div>
+    </div>
+    {% endif %}
+    {% if ticket.acceptance %}
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-500">Acceptance</div>
+      <ul class="text-sm list-disc pl-5 space-y-0.5">
+        {% for a in ticket.acceptance %}<li>{{ a }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="border-t border-slate-100 pt-3 space-y-2">
+      <form hx-post="/tickets/{{ ticket.id }}/run"
+            hx-target="#ticket-panel" hx-swap="innerHTML">
+        <input type="hidden" name="client" value="{{ client }}">
+        <input type="hidden" name="project" value="{{ project }}">
+        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded
+                       disabled:bg-slate-300 disabled:cursor-not-allowed"
+                {% if ticket.state in ('approved', 'done') %}disabled{% endif %}>
+          Run slice (implementer + reviewer)
+        </button>
+      </form>
+
+      <form hx-post="/tickets/{{ ticket.id }}/approve"
+            hx-target="#ticket-panel" hx-swap="innerHTML"
+            x-data="{ apply: true }">
+        <input type="hidden" name="client" value="{{ client }}">
+        <input type="hidden" name="project" value="{{ project }}">
+        <label class="flex items-center gap-2 text-sm text-slate-700 mb-2">
+          <input type="checkbox" name="apply_suggestions" value="1"
+                 x-model="apply" {% if ticket.state != 'awaiting_approval' %}disabled{% endif %}>
+          Apply reviewer suggestions before approving
+        </label>
+        <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium py-2 rounded
+                       disabled:bg-slate-300 disabled:cursor-not-allowed"
+                {% if ticket.state != 'awaiting_approval' %}disabled{% endif %}>
+          Approve → commit
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- middle: draft + review -->
+  <div class="lg:col-span-2 space-y-4">
+    {% if draft %}
+    <div class="bg-white border border-slate-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500">
+        Draft (kanban/in_progress/{{ ticket.id }}/draft.md)
+      </div>
+      <pre class="p-4 text-xs whitespace-pre-wrap font-mono leading-snug max-h-96 overflow-auto">{{ draft }}</pre>
+    </div>
+    {% endif %}
+
+    {% if review %}
+    <div class="bg-white border border-slate-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 flex items-center">
+        <span>Reviewer suggestions</span>
+        <span class="ml-2 badge-state
+          {% if review.verdict == 'ok' %}bg-emerald-100 text-emerald-800
+          {% else %}bg-amber-100 text-amber-800{% endif %}">{{ review.verdict }}</span>
+      </div>
+      <ul class="divide-y divide-slate-100">
+        {% for s in review.suggestions %}
+        <li class="px-4 py-2 text-sm flex gap-3">
+          <span class="badge-state shrink-0
+            {% if s.severity == 'major' %}bg-rose-100 text-rose-800{% else %}bg-slate-100 text-slate-700{% endif %}">
+            {{ s.severity }}{% if s.slide %} · slide {{ s.slide }}{% endif %}
+          </span>
+          <div>
+            <div class="text-slate-700">{{ s.issue }}</div>
+            <div class="text-slate-500 text-xs mt-0.5">Fix: {{ s.fix }}</div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if artifact %}
+    <div class="bg-white border border-emerald-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-emerald-100 text-xs uppercase tracking-wider text-emerald-700">
+        Approved artifact
+      </div>
+      <pre class="p-4 text-xs whitespace-pre-wrap font-mono leading-snug max-h-96 overflow-auto">{{ artifact }}</pre>
+    </div>
+    {% endif %}
+
+    <!-- OC-020 — audit timeline -->
+    <div class="bg-white border border-slate-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500">
+        Audit timeline ({{ audit_runs|length }})
+      </div>
+      <ol class="divide-y divide-slate-100">
+        {% for r in audit_runs %}
+        <li class="px-4 py-2 text-sm flex gap-3" x-data="{open:false}">
+          <div class="text-xs text-slate-400 shrink-0 w-44">{{ r.written_at }}</div>
+          <div class="flex-1">
+            <div>
+              <span class="font-medium">{{ r.agent }}</span>
+              {% if r.llm_mode %}<span class="text-xs text-slate-400 ml-2">{{ r.llm_mode }}</span>{% endif %}
+              {% if r.verdict %}<span class="ml-2 badge-state bg-amber-100 text-amber-800">{{ r.verdict }}</span>{% endif %}
+              {% if r.decision %}<span class="ml-2 badge-state bg-emerald-100 text-emerald-800">{{ r.decision }}</span>{% endif %}
+            </div>
+            <button class="text-xs text-blue-600 hover:underline mt-1"
+                    @click="open = !open" x-text="open ? 'hide' : 'inspect'"></button>
+            <pre x-show="open" x-cloak
+                 class="mt-2 bg-slate-50 border border-slate-200 rounded p-2 text-xs font-mono overflow-auto max-h-64">{{ r | tojson(indent=2) }}</pre>
+          </div>
+        </li>
+        {% endfor %}
+        {% if not audit_runs %}
+        <li class="px-4 py-2 text-sm text-slate-400 italic">no runs yet — click "Run slice" to start</li>
+        {% endif %}
+      </ol>
+    </div>
+  </div>
+
+</div>

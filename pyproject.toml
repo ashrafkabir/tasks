@@ -17,6 +17,8 @@ dependencies = [
     "rich>=13.0",
     "fastapi>=0.110",
     "uvicorn>=0.30",
+    "jinja2>=3.0",
+    "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]
@@ -29,6 +31,9 @@ openclaw = "openclaw.cli:main"
 where = ["."]
 include = ["openclaw*"]
 exclude = ["tests*", "vault*", "tasks*", "seed*"]
+
+[tool.setuptools.package-data]
+openclaw = ["dashboard/templates/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

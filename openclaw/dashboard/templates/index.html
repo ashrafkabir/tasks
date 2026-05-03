@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}OpenClaw — engagements{% endblock %}
+{% block body %}
+<h1 class="text-2xl font-bold mb-1">Engagements</h1>
+<p class="text-slate-500 text-sm mb-6">One row per (client, project). Click in to see the kanban board.</p>
+
+{% if not engagements %}
+<div class="bg-white border border-slate-200 rounded p-6 text-slate-500">
+  No engagements yet. Run <code class="bg-slate-100 px-1 rounded">make slice</code> to seed Acme,
+  or send <code class="bg-slate-100 px-1 rounded">/ticket &lt;kind&gt; &lt;title&gt;</code>
+  from a configured chat bridge.
+</div>
+{% else %}
+<table class="w-full bg-white border border-slate-200 rounded shadow-sm">
+  <thead class="text-xs uppercase tracking-wider text-slate-500 bg-slate-50">
+    <tr>
+      <th class="text-left px-4 py-2">Client</th>
+      <th class="text-left px-4 py-2">Project</th>
+      <th class="text-right px-4 py-2">Backlog</th>
+      <th class="text-right px-4 py-2">In&nbsp;progress</th>
+      <th class="text-right px-4 py-2">Awaiting</th>
+      <th class="text-right px-4 py-2">Approved</th>
+      <th class="text-right px-4 py-2">Done</th>
+      <th class="text-right px-4 py-2">Total</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for e in engagements %}
+    <tr class="border-t border-slate-100 hover:bg-slate-50">
+      <td class="px-4 py-2 font-medium">{{ e.client }}</td>
+      <td class="px-4 py-2">
+        <a class="text-blue-700 hover:underline"
+           href="/board?client={{ e.client }}&project={{ e.project }}">{{ e.project }}</a>
+      </td>
+      <td class="px-4 py-2 text-right">{{ e.counts.backlog }}</td>
+      <td class="px-4 py-2 text-right">{{ e.counts.in_progress }}</td>
+      <td class="px-4 py-2 text-right font-medium {% if e.counts.awaiting_approval %}text-amber-700{% endif %}">{{ e.counts.awaiting_approval }}</td>
+      <td class="px-4 py-2 text-right">{{ e.counts.approved }}</td>
+      <td class="px-4 py-2 text-right">{{ e.counts.done }}</td>
+      <td class="px-4 py-2 text-right">{{ e.total }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

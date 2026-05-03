@@ -45,31 +45,27 @@ def _handle_command(token: str, chat_id: str, text: str) -> str | None:
                 "  /approve <ticket-id>\n"
                 "  /status")
     if cmd == "/run" and len(parts) >= 2:
-        from ..agents import implementer, reviewer
-        from .. import kanban
-        ticket_id = parts[1]
-        try:
-            client = os.getenv("OPENCLAW_DEFAULT_CLIENT", "")
-            project = os.getenv("OPENCLAW_DEFAULT_PROJECT", "")
-            t = kanban.load_ticket(client, project, ticket_id)
-            if t.state == "backlog":
-                t = kanban.transition(client, project, ticket_id, "in_progress")
-            implementer.run(t)
-            rev = reviewer.run(t)
-            kanban.transition(client, project, ticket_id, "awaiting_approval")
-            return f"ran slice for {ticket_id}: verdict={rev['verdict']}, suggestions={len(rev['suggestions'])}"
-        except Exception as e:
-            return f"run failed: {e}"
-    if cmd == "/approve" and len(parts) >= 2:
-        from click.testing import CliRunner
-        from ..cli import main as cli
+        from .. import service
         ticket_id = parts[1]
         client = os.getenv("OPENCLAW_DEFAULT_CLIENT", "")
         project = os.getenv("OPENCLAW_DEFAULT_PROJECT", "")
-        runner = CliRunner()
-        res = runner.invoke(cli, ["approve", ticket_id, "--client", client,
-                                   "--project", project, "--apply"])
-        return f"approve exit={res.exit_code}\n{res.output[-400:]}"
+        try:
+            r = service.run_slice(client, project, ticket_id)
+            return (f"ran slice for {ticket_id}: "
+                    f"verdict={r['reviewer']['verdict']}, "
+                    f"suggestions={len(r['reviewer']['suggestions'])}")
+        except Exception as e:
+            return f"run failed: {e}"
+    if cmd == "/approve" and len(parts) >= 2:
+        from .. import service
+        ticket_id = parts[1]
+        client = os.getenv("OPENCLAW_DEFAULT_CLIENT", "")
+        project = os.getenv("OPENCLAW_DEFAULT_PROJECT", "")
+        try:
+            r = service.approve(client, project, ticket_id, apply_suggestions=True)
+            return f"approved {ticket_id}: commit {r['commit_sha'][:8] or '(none)'}"
+        except Exception as e:
+            return f"approve failed: {e}"
     if cmd == "/status":
         from .. import kanban
         client = os.getenv("OPENCLAW_DEFAULT_CLIENT", "")
