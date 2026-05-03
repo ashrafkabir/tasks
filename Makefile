@@ -1,0 +1,37 @@
+.PHONY: bootstrap install seed slice approve test clean llama-chat llama-embed healthz
+
+PY=.venv/bin/python
+PIP=.venv/bin/pip
+
+bootstrap:
+	test -d .venv || python3 -m venv .venv
+	$(PIP) install --quiet --upgrade pip
+	$(PIP) install --quiet -e ".[dev]"
+	@echo "venv ready. activate with: source .venv/bin/activate"
+
+install: bootstrap
+
+seed:
+	$(PY) -m seed.seed_acme
+
+slice: seed
+	$(PY) -m openclaw.cli run-slice
+
+approve:
+	$(PY) -m openclaw.cli approve OC-T-001 --apply
+
+test:
+	$(PY) -m pytest
+
+clean:
+	rm -rf data/ tasks/ .pytest_cache/
+	find vault/clients -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
+
+llama-chat:
+	bash scripts/llama_chat_server.sh
+
+llama-embed:
+	bash scripts/llama_embed_server.sh
+
+healthz:
+	bash scripts/healthz.sh
