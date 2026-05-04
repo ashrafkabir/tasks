@@ -28,6 +28,24 @@ approval gate → git commit) without depending on a model load. Stub responses 
 plainly tagged in the audit trace ("llm_mode": "stub"), so they cannot be confused
 with live output downstream.
 
+## 2026-05-04 — GitHub remote layout: nested under `task/openclaw/`
+
+OpenClaw shares the `github.com/ashrafkabir/tasks` repo with the user's other
+work (sibling branches: `task/agentlens`, `traderapp_whatsapp`). To avoid
+colliding with those and to keep all OpenClaw refs grouped:
+
+- `task/openclaw/source` — source code, mirrored from local `main`.
+- `task/openclaw/<client>/<project>` — audit + artifact branch per engagement.
+
+**Do not** create a `task/openclaw` leaf branch — it would block the
+namespace for engagement branches.
+
+For now, pushing remains manual: `git push` from the source repo, and
+`git push` from each engagement's working tree under `tasks/`. A future
+ticket could wire `git_sync.commit_artifact` to `git push` after each
+approval if a remote is configured (gated on env to keep the slice tests
+offline).
+
 ## 2026-05-04 — Memory-Curator (OC-021): client-scoped, idempotent, no auto-trigger
 
 The curator is **explicitly invoked** (`openclaw curate-memory --client X`)
