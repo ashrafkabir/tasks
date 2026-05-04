@@ -51,6 +51,15 @@ CREATE TABLE IF NOT EXISTS approvals (
     decision    TEXT NOT NULL,
     notes       TEXT
 );
+
+CREATE TABLE IF NOT EXISTS curated_events (
+    event_id    TEXT PRIMARY KEY,
+    client      TEXT NOT NULL,
+    run_id      TEXT NOT NULL,
+    curated_at  TEXT NOT NULL,
+    fact_count  INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_curated_client ON curated_events(client, curated_at DESC);
 """
 
 
@@ -127,3 +136,40 @@ def recent_runs(ticket_id: str, limit: int = 20) -> list[dict]:
             (ticket_id, limit),
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+def list_client_events(client: str, project: str | None = None,
+                       since: str | None = None) -> list[dict]:
+    """All events for a client, optionally filtered by project and received_at."""
+    sql = "SELECT * FROM events WHERE client=?"
+    args: list = [client]
+    if project:
+        sql += " AND project=?"
+        args.append(project)
+    if since:
+        sql += " AND received_at >= ?"
+        args.append(since)
+    sql += " ORDER BY received_at ASC"
+    with connect() as c:
+        rows = c.execute(sql, args).fetchall()
+        return [dict(r) for r in rows]
+
+
+def already_curated(event_ids: list[str]) -> set[str]:
+    if not event_ids:
+        return set()
+    with connect() as c:
+        placeholders = ",".join("?" * len(event_ids))
+        rows = c.execute(
+            f"SELECT event_id FROM curated_events WHERE event_id IN ({placeholders})",
+            event_ids,
+        ).fetchall()
+        return {r["event_id"] for r in rows}
+
+
+def mark_curated(event_id: str, client: str, run_id: str, fact_count: int) -> None:
+    with connect() as c:
+        c.execute(
+            "INSERT OR REPLACE INTO curated_events VALUES (?, ?, ?, ?, ?)",
+            (event_id, client, run_id, _now(), fact_count),
+        )

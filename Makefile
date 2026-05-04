@@ -1,4 +1,4 @@
-.PHONY: bootstrap install seed slice approve test clean llama-chat llama-embed healthz \
+.PHONY: bootstrap install seed slice approve curate-memory test clean llama-chat llama-embed healthz \
         telegram-bridge wa-bridge wuzapi dashboard
 
 PY=.venv/bin/python
@@ -20,6 +20,9 @@ slice: seed
 
 approve:
 	$(PY) -m openclaw.cli approve OC-T-001 --apply
+
+curate-memory:
+	$(PY) -m openclaw.cli curate-memory --client acme
 
 test:
 	$(PY) -m pytest

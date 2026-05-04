@@ -69,6 +69,8 @@ class LLMClient:
             content = self._stub_deck_outline(user, sig)
         elif "reviewer" in sys_l:
             content = self._stub_review(user, sig)
+        elif "memory-curator" in sys_l or "extract durable facts" in sys_l:
+            content = self._stub_curator(user, sig)
         else:
             content = f"[stub] sig={sig}\n\nReceived task; no template matched."
 
@@ -118,6 +120,51 @@ class LLMClient:
             - Resources required
             - **Speaker note:** Close with a single, named next action and an owner.
             """)
+
+    @staticmethod
+    def _stub_curator(user: str, sig: str) -> str:
+        """Deterministic facts: one per event, picks tags from simple keyword scan."""
+        # Caller passes a CLIENT: line and EVENT blocks. Extract one fact per event.
+        client = "Client"
+        for line in user.splitlines():
+            if line.startswith("CLIENT:"):
+                client = line.split(":", 1)[1].strip()
+                break
+
+        keywords = {
+            "budget": "budget", "modernization": "modernization",
+            "transformation": "transformation", "board": "board",
+            "platform": "platform", "erp": "erp", "cio": "cio",
+            "cfo": "cfo", "compliance": "compliance",
+        }
+        facts: list[dict] = []
+        # Split on EVENT blocks
+        chunks = user.split("EVENT_ID:")[1:]
+        for chunk in chunks:
+            lines = chunk.strip().splitlines()
+            if not lines:
+                continue
+            ev_id = lines[0].strip()
+            title = ""
+            body_lines: list[str] = []
+            for ln in lines[1:]:
+                if ln.startswith("TITLE:"):
+                    title = ln.split(":", 1)[1].strip()
+                elif ln.startswith("BODY:"):
+                    pass
+                else:
+                    body_lines.append(ln)
+            body = "\n".join(body_lines).lower()
+            tags = sorted({tag for kw, tag in keywords.items() if kw in body})
+            facts.append({
+                "subject": client,
+                "claim": title or "(no title)",
+                "evidence_event_id": ev_id,
+                "confidence": "medium",
+                "tags": tags,
+            })
+        import json
+        return json.dumps({"facts": facts}, indent=2)
 
     @staticmethod
     def _stub_review(user: str, sig: str) -> str:

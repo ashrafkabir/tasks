@@ -30,6 +30,28 @@ By default, the slice runs in `OPENCLAW_LLM_MODE=stub` (deterministic local
 responder) so it works without a llama-server up. See `vault/shared/MODEL_NOTES.md`
 for the live-mode steps.
 
+## Memory curation (OC-021)
+
+Inbound chat messages and other events accumulate in
+`vault/clients/<client>/projects/<project>/events/`. The Memory-Curator
+distills them into durable per-client facts:
+
+```bash
+openclaw curate-memory --client acme
+# or                  --client acme --project digital-platform
+# or                  --client acme --since 2026-04-01T00:00:00Z
+```
+
+Output:
+- `vault/clients/<client>/memory.md` — append-only, one section per run, one
+  bullet per fact (subject, claim, confidence, evidence event id, tags).
+- Qdrant `client_<slug>` collection — each fact embedded as a `memory_fact`
+  point so the context bundler surfaces them in future agent runs.
+- `vault/shared/_curation/<client>/<run-id>.json` — full audit trail.
+- SQLite `curated_events` row per processed event.
+
+Idempotent: re-running with no new events is a no-op.
+
 ## Dashboard
 
 `make dashboard` boots a FastAPI + HTMX UI on `http://127.0.0.1:8091`:

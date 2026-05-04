@@ -44,7 +44,7 @@ slice, P1 = first useful surface, P2 = polish/scale.
 | OC-018 | E6 | FastAPI skeleton + HTMX board route | **done** |
 | OC-019 | E6 | Ticket detail view + approval button | **done** |
 | OC-020 | E6 | Audit timeline view | **done** |
-| OC-021 | E5 | Memory-Curator agent (extract facts → per-client memory.md + Qdrant) | pending |
+| OC-021 | E5 | Memory-Curator agent (extract facts → per-client memory.md + Qdrant) | **done** |
 | OC-022 | E5 | Briefer agent (CxO briefing markdown) | pending |
 | OC-022b | E7 | Shared ingest pipeline (event MD + SQLite + Qdrant + spawn rules) | **done** |
 | OC-023 | E7 | Telegram bridge (polling inbound + REST outbound) | **done** |

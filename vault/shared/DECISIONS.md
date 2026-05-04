@@ -28,6 +28,25 @@ approval gate → git commit) without depending on a model load. Stub responses 
 plainly tagged in the audit trace ("llm_mode": "stub"), so they cannot be confused
 with live output downstream.
 
+## 2026-05-04 — Memory-Curator (OC-021): client-scoped, idempotent, no auto-trigger
+
+The curator is **explicitly invoked** (`openclaw curate-memory --client X`)
+rather than auto-firing after each ingest. Reason: keeping it operator-driven
+avoids spamming the LLM on every chat message and lets Ashraf batch-curate
+when context warrants it.
+
+Idempotency via the new SQLite `curated_events` table: each event id is
+recorded as curated once. The same event is never re-processed.
+
+Storage shape:
+- `vault/clients/<client>/memory.md` — append-only markdown, one section per
+  run. Human-readable, scannable, diffable.
+- Qdrant points with `kind=memory_fact` in the per-client collection. Sit
+  alongside `kind=event` points so semantic search returns both naturally.
+- Audit JSON under `vault/shared/_curation/<client>/<run-id>.json` —
+  client-scoped, not per-ticket, because curation is independent of any
+  specific ticket.
+
 ## 2026-05-03 — Dashboard: FastAPI + Jinja2 + HTMX + Alpine + Tailwind (CDN)
 
 **OC-018/019/020.** Single FastAPI app on `:8091`, separate from the bridges

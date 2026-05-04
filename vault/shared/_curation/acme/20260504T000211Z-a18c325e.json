@@ -1,0 +1,32 @@
+{
+  "agent": "memory-curator",
+  "run_id": "20260504T000211Z-a18c325e",
+  "client": "acme",
+  "project_filter": null,
+  "since": null,
+  "llm_mode": "stub",
+  "llm_model": "stub:deterministic",
+  "events_processed": 1,
+  "fact_count": 1,
+  "qdrant_upserts": 1,
+  "memory_path": "/home/aifactory/openclaw/vault/clients/acme/memory.md",
+  "facts": [
+    {
+      "subject": "acme",
+      "claim": "Acme Q1-2026 shareholder letter signals modernization budget",
+      "evidence_event_id": "evt-2026-05-03-quarterly-letter",
+      "confidence": "medium",
+      "tags": [
+        "board",
+        "budget",
+        "cfo",
+        "cio",
+        "erp",
+        "modernization",
+        "platform",
+        "transformation"
+      ]
+    }
+  ],
+  "written_at": "2026-05-04T00:02:11+00:00"
+}

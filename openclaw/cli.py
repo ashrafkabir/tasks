@@ -12,7 +12,7 @@ from .config import get_settings
 from . import kanban, audit, sqlite_store, git_sync, service
 from .vault import project_dir, audit_dir
 from .schemas import Ticket
-from .agents import implementer, reviewer
+from .agents import implementer, reviewer, memory_curator
 
 console = Console()
 
@@ -62,6 +62,26 @@ def approve_cmd(ticket_id: str, client: str, project: str, apply: bool,
     console.print(f"[green]artifact:[/] {result['artifact_path']}")
     console.print(f"[green]commit :[/] {result['commit_sha'] or '(no diff)'}")
     console.print(f"[green]ticket :[/] done")
+
+
+@main.command("curate-memory")
+@click.option("--client", required=True)
+@click.option("--project", default=None,
+              help="Optional: only curate events from this project.")
+@click.option("--since", default=None,
+              help="ISO timestamp; only consider events received at or after.")
+def curate_memory_cmd(client: str, project: str | None, since: str | None) -> None:
+    """OC-021 — extract durable facts from uncurated events into memory.md + Qdrant."""
+    console.rule(f"[bold cyan]openclaw curate-memory client={client}")
+    result = memory_curator.run(client, project=project, since=since)
+    if result.get("skipped"):
+        console.print(f"[yellow]skipped:[/] {result.get('reason')}")
+        return
+    console.print(f"[green]events processed :[/] {result['events_processed']}")
+    console.print(f"[green]facts extracted  :[/] {result['fact_count']}")
+    console.print(f"[green]qdrant upserts   :[/] {result['qdrant_upserts']}")
+    console.print(f"[green]memory file      :[/] {result['memory_path']}")
+    console.print(f"[green]audit            :[/] {result['audit_path']}")
 
 
 @main.command("status")
