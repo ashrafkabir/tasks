@@ -27,7 +27,9 @@
   <tbody>
   {% for e in engagements %}
     <tr class="border-t border-slate-100 hover:bg-slate-50">
-      <td class="px-4 py-2 font-medium">{{ e.client }}</td>
+      <td class="px-4 py-2 font-medium">
+        <a class="text-blue-700 hover:underline" href="/clients/{{ e.client }}">{{ e.client }}</a>
+      </td>
       <td class="px-4 py-2">
         <a class="text-blue-700 hover:underline"
            href="/board?client={{ e.client }}&project={{ e.project }}">{{ e.project }}</a>

@@ -19,10 +19,11 @@ from pathlib import Path
 from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+import yaml as _yaml  # noqa: F401  (used inside _read_objective via lazy import)
 
 from .. import kanban, audit, service, sqlite_store
 from ..config import get_settings
-from ..vault import project_dir
+from ..vault import project_dir, client_dir
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
@@ -84,6 +85,66 @@ def _load_columns(client: str, project: str) -> dict[str, list[dict]]:
 @app.get("/healthz")
 def healthz() -> dict:
     return {"ok": True}
+
+
+def _client_view(client_slug: str) -> dict:
+    cd = client_dir(client_slug)
+    client_yaml = (cd / "client.yaml").read_text() if (cd / "client.yaml").exists() else ""
+    memory_md = (cd / "memory.md").read_text() if (cd / "memory.md").exists() else ""
+
+    proj_dir = cd / "projects"
+    projects: list[dict] = []
+    if proj_dir.exists():
+        for p in sorted(proj_dir.iterdir()):
+            if not p.is_dir():
+                continue
+            counts = {col: 0 for col in KANBAN_COLUMNS}
+            for col in KANBAN_COLUMNS:
+                d = p / "kanban" / col
+                if d.exists():
+                    counts[col] = len(list(d.glob("*.yaml")))
+            projects.append({
+                "slug": p.name,
+                "counts": counts,
+                "total": sum(counts.values()),
+                "objective": _read_objective(p),
+            })
+
+    # Recent events across all projects
+    events: list[dict] = []
+    try:
+        events = sqlite_store.list_client_events(client_slug)[-25:][::-1]
+    except Exception:
+        pass
+
+    return {
+        "client": client_slug,
+        "client_yaml": client_yaml,
+        "memory_md": memory_md,
+        "projects": projects,
+        "events": events,
+    }
+
+
+def _read_objective(project_dir_path: Path) -> str:
+    py = project_dir_path / "project.yaml"
+    if not py.exists():
+        return ""
+    try:
+        import yaml
+        return (yaml.safe_load(py.read_text()) or {}).get("objective", "")
+    except Exception:
+        return ""
+
+
+@app.get("/clients/{client_slug}", response_class=HTMLResponse)
+def client_page(request: Request, client_slug: str):
+    cd = client_dir(client_slug)
+    if not cd.exists():
+        raise HTTPException(status_code=404, detail=f"client {client_slug!r} not found")
+    return templates.TemplateResponse(
+        request, "client.html", _client_view(client_slug),
+    )
 
 
 @app.get("/", response_class=HTMLResponse)

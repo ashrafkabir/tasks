@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{{ client }} — overview{% endblock %}
+{% block body %}
+<div class="flex items-center mb-4">
+  <div>
+    <div class="text-xs text-slate-500">client</div>
+    <h1 class="text-2xl font-bold">{{ client }}</h1>
+  </div>
+  <div class="ml-auto text-sm">
+    <a class="text-slate-500 hover:underline" href="/">← all engagements</a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+  <!-- left: profile + projects -->
+  <div class="space-y-4">
+    {% if client_yaml %}
+    <div class="bg-white border border-slate-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500">
+        Profile (client.yaml)
+      </div>
+      <pre class="p-4 text-xs whitespace-pre-wrap font-mono leading-snug">{{ client_yaml }}</pre>
+    </div>
+    {% endif %}
+
+    <div class="bg-white border border-slate-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500">
+        Projects ({{ projects|length }})
+      </div>
+      {% if not projects %}
+      <div class="px-4 py-3 text-sm text-slate-400 italic">no projects yet</div>
+      {% else %}
+      <ul class="divide-y divide-slate-100">
+        {% for p in projects %}
+        <li class="px-4 py-3 text-sm">
+          <a class="text-blue-700 font-medium hover:underline"
+             href="/board?client={{ client }}&project={{ p.slug }}">{{ p.slug }}</a>
+          <div class="text-slate-500 text-xs mt-0.5">{{ p.objective[:140] }}</div>
+          <div class="mt-1 text-xs text-slate-400">
+            backlog={{ p.counts.backlog }}
+            · in&nbsp;progress={{ p.counts.in_progress }}
+            · awaiting={{ p.counts.awaiting_approval }}
+            · done={{ p.counts.done }}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- middle: durable memory -->
+  <div class="lg:col-span-2 space-y-4">
+    <div class="bg-white border border-slate-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 flex items-center">
+        <span>Durable memory (memory.md)</span>
+        <span class="ml-2 text-slate-400 normal-case font-normal">{{ memory_md|length }} chars</span>
+      </div>
+      {% if memory_md %}
+      <pre class="p-4 text-xs whitespace-pre-wrap font-mono leading-snug max-h-[28rem] overflow-auto">{{ memory_md }}</pre>
+      {% else %}
+      <div class="px-4 py-6 text-sm text-slate-400 italic">
+        No durable memory yet. Run <code class="bg-slate-100 px-1 rounded">openclaw curate-memory --client {{ client }}</code>
+        after some events have been ingested.
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500">
+        Recent events ({{ events|length }})
+      </div>
+      {% if not events %}
+      <div class="px-4 py-3 text-sm text-slate-400 italic">no events yet</div>
+      {% else %}
+      <ul class="divide-y divide-slate-100">
+        {% for e in events %}
+        <li class="px-4 py-2 text-sm flex gap-3">
+          <span class="text-xs text-slate-400 shrink-0 w-44">{{ e.received_at }}</span>
+          <span class="text-xs text-slate-500 shrink-0 w-20">{{ e.source }}</span>
+          <span class="text-xs text-slate-500 shrink-0 w-32 truncate">{{ e.project }}</span>
+          <span class="flex-1">{{ e.title }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
