@@ -1,0 +1,19 @@
+{
+  "agent": "implementer",
+  "llm_mode": "stub",
+  "llm_model": "stub:deterministic",
+  "system_prompt_sha": "46c92c96f9e7fe62",
+  "user_prompt_excerpt": "TASK_TITLE: Draft Acme board readout deck for May 17\n\n=== CLIENT ===\nslug: acme\ndisplay_name: Acme Manufacturing Co.\nindustry: Industrial Manufacturing\nprimary_contact: J. Doe (CIO)\nnotes: Mid-market manufacturer evaluating digital platform consolidation.\n\n=== PROJECT ===\nslug: digital-platform\nclient: acme\ndisplay_name: Digital Platform Consolidation\nobjective: Consolidate fragmented ERP+MES tooling into a single Visionet-led digital\n  platform; brief the Acme board quarterly on progress and risk.\nstatus: active\n\n=== TICKET ===\nid: OC-T-001\nclient: acme\nproject: digital-platform\ntitle: Draft ",
+  "draft_path": "/home/aifactory/openclaw/vault/clients/acme/projects/digital-platform/kanban/in_progress/OC-T-001/draft.md",
+  "draft_chars": 1008,
+  "context_summary": {
+    "has_source_event": true,
+    "recent_event_count": 1,
+    "semantic_hit_count": 2
+  },
+  "run_id": "20260504T001901Z-83e46616",
+  "ticket_id": "OC-T-001",
+  "client": "acme",
+  "project": "digital-platform",
+  "written_at": "2026-05-04T00:19:01+00:00"
+}

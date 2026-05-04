@@ -1,0 +1,33 @@
+{
+  "agent": "reviewer",
+  "llm_mode": "stub",
+  "llm_model": "stub:deterministic",
+  "review_path": "/home/aifactory/openclaw/vault/clients/acme/projects/digital-platform/kanban/in_progress/OC-T-001/review.json",
+  "verdict": "needs-revisions",
+  "suggestion_count": 3,
+  "suggestions": [
+    {
+      "slide": 1,
+      "issue": "Context slide does not name the specific event date.",
+      "fix": "Insert event date in Slide 1 bullet 2.",
+      "severity": "minor"
+    },
+    {
+      "slide": 4,
+      "issue": "Recommendation lacks a quantified upside.",
+      "fix": "Add a one-line dollar or time-savings estimate to the recommendation bullet.",
+      "severity": "major"
+    },
+    {
+      "slide": 5,
+      "issue": "Asks slide should name a single owner per decision.",
+      "fix": "Append '(owner: <name>)' to each ask bullet.",
+      "severity": "minor"
+    }
+  ],
+  "run_id": "20260504T001901Z-9af492e8",
+  "ticket_id": "OC-T-001",
+  "client": "acme",
+  "project": "digital-platform",
+  "written_at": "2026-05-04T00:19:01+00:00"
+}

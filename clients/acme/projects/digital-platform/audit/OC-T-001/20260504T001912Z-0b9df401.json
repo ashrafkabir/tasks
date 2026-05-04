@@ -1,0 +1,12 @@
+{
+  "agent": "approver",
+  "decision": "approved",
+  "applied_suggestions": true,
+  "artifact_path": "/home/aifactory/openclaw/vault/clients/acme/projects/digital-platform/artifacts/decks/oc-t-001-deck-outline.md",
+  "notes": null,
+  "run_id": "20260504T001912Z-0b9df401",
+  "ticket_id": "OC-T-001",
+  "client": "acme",
+  "project": "digital-platform",
+  "written_at": "2026-05-04T00:19:12+00:00"
+}
