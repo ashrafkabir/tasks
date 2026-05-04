@@ -12,7 +12,7 @@ from .config import get_settings
 from . import kanban, audit, sqlite_store, git_sync, service
 from .vault import project_dir, audit_dir
 from .schemas import Ticket
-from .agents import implementer, reviewer, memory_curator
+from .agents import implementer, reviewer, memory_curator, briefer
 
 console = Console()
 
@@ -82,6 +82,25 @@ def curate_memory_cmd(client: str, project: str | None, since: str | None) -> No
     console.print(f"[green]qdrant upserts   :[/] {result['qdrant_upserts']}")
     console.print(f"[green]memory file      :[/] {result['memory_path']}")
     console.print(f"[green]audit            :[/] {result['audit_path']}")
+
+
+@main.command("brief")
+@click.option("--client", required=True)
+@click.option("--project", required=True)
+@click.option("--event-id", default=None,
+              help="Brief about a specific event id; defaults to latest event.")
+def brief_cmd(client: str, project: str, event_id: str | None) -> None:
+    """OC-022 — synthesize a CxO briefing markdown into briefs/."""
+    console.rule(f"[bold cyan]openclaw brief {client}/{project}")
+    try:
+        result = briefer.run(client, project, event_id=event_id)
+    except FileNotFoundError as e:
+        console.print(f"[red]{e}[/]")
+        sys.exit(2)
+    console.print(f"[green]brief :[/] {result['brief_path']}")
+    console.print(f"[green]audit :[/] {result['audit_path']}")
+    console.print(f"[green]event :[/] {result['event_id']}")
+    console.print(f"[green]memory hits:[/] {result['memory_hit_count']}")
 
 
 @main.command("status")
