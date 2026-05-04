@@ -22,9 +22,17 @@ This repository is in **Phase A** — design artifacts only, no code yet.
 make bootstrap          # create venv, install package + dev deps
 make slice              # seed → run-slice (implementer + reviewer + awaiting_approval)
 make approve            # approve --apply → done → tasks repo commit
-make test               # 24 tests, all green
+make test               # 47 tests, all green
 make dashboard          # http://127.0.0.1:8091 — kanban + ticket detail + audit timeline
+make compose-up         # qdrant + searxng + wuzapi + bridge + dashboard (containers)
+make tunnel             # bring the dashboard online over Cloudflared + Access (free tier)
 ```
+
+CLI surface (`openclaw <subcommand> --help`):
+- `run-slice`, `approve`, `status`
+- `curate-memory`, `brief`
+- `search-monitor`
+- `replay`
 
 By default, the slice runs in `OPENCLAW_LLM_MODE=stub` (deterministic local
 responder) so it works without a llama-server up. See `vault/shared/MODEL_NOTES.md`

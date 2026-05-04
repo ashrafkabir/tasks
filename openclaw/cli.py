@@ -129,6 +129,26 @@ def search_monitor_cmd(client: str | None, project: str | None, all_: bool) -> N
             console.print(f"  [red]err:[/] {e}")
 
 
+@main.command("replay")
+@click.option("--run-id", required=True)
+@click.option("--client", default=None)
+@click.option("--project", default=None)
+@click.option("--ticket", "ticket_id", default=None)
+def replay_cmd(run_id: str, client: str | None, project: str | None,
+               ticket_id: str | None) -> None:
+    """OC-030 — re-run the agent that produced a captured audit run."""
+    from . import replay as replay_mod
+    try:
+        result = replay_mod.replay(run_id=run_id, client=client,
+                                   project=project, ticket_id=ticket_id)
+    except (FileNotFoundError, ValueError) as e:
+        console.print(f"[red]{e}[/]")
+        sys.exit(2)
+    console.print(f"[green]agent       :[/] {result['agent']}")
+    console.print(f"[green]replayed of :[/] {result['replayed_from']}")
+    console.print(f"[green]new audit   :[/] {result['new_audit']}")
+
+
 @main.command("status")
 @click.option("--client", default="acme")
 @click.option("--project", default="digital-platform")

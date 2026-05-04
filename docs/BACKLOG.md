@@ -45,20 +45,20 @@ slice, P1 = first useful surface, P2 = polish/scale.
 | OC-019 | E6 | Ticket detail view + approval button | **done** |
 | OC-020 | E6 | Audit timeline view | **done** |
 | OC-021 | E5 | Memory-Curator agent (extract facts → per-client memory.md + Qdrant) | **done** |
-| OC-022 | E5 | Briefer agent (CxO briefing markdown) | pending |
+| OC-022 | E5 | Briefer agent (CxO briefing markdown) | **done** |
 | OC-022b | E7 | Shared ingest pipeline (event MD + SQLite + Qdrant + spawn rules) | **done** |
 | OC-023 | E7 | Telegram bridge (polling inbound + REST outbound) | **done** |
 | OC-024 | E3 | Cross-client leakage tests (collection-isolation invariants) | done (in test_collection_isolation) |
-| OC-025 | E8 | Docker Compose for llama-servers + Qdrant + dashboard | pending |
+| OC-025 | E8 | Docker Compose for Qdrant + SearXNG + wuzapi + bridge + dashboard | **done** |
 
 ### P2 — polish / scale
 | ID | Epic | Title | Status |
 |---|---|---|---|
 | OC-026 | E7 | WhatsApp bridge via wuzapi (OSS, FastAPI webhook + REST send) | **done** |
-| OC-027 | E7 | SearXNG monitor scheduler (per-client query packs) | pending |
-| OC-028 | E8 | Cloudflared Tunnel + Cloudflare Access front for dashboard | pending |
-| OC-029 | E6 | Per-client filter + memory inspector | pending |
-| OC-030 | E4 | Replay tool: re-run an audit trace deterministically | pending |
+| OC-027 | E7 | SearXNG monitor (per-client query packs, dedupe, ingest) | **done** |
+| OC-028 | E8 | Cloudflared Tunnel + Cloudflare Access front for dashboard | **done** |
+| OC-029 | E6 | Per-client page + memory inspector | **done** |
+| OC-030 | E4 | Replay tool: re-run an agent from a captured audit | **done** |
 
 ## Dependency graph (textual)
 ```
