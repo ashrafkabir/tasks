@@ -24,12 +24,15 @@ from .embed import Embedder
 
 @dataclass
 class InboundMessage:
-    source: str          # "telegram" | "whatsapp"
+    source: str          # "telegram" | "whatsapp" | "searxng" | ...
     chat_id: str         # platform chat identifier
     message_id: str      # platform unique message id
     sender: str          # display name / handle / jid
     text: str
     received_at: str | None = None  # ISO; default = now
+    # Skip chat-route resolution and ingest directly into this (client, project).
+    # Used by ingestors that already know the engagement (e.g. SearXNG monitor).
+    route_override: tuple[str, str] | None = None
 
 
 def _slug(s: str, n: int = 32) -> str:
@@ -46,7 +49,13 @@ def _event_id(msg: InboundMessage) -> str:
 def ingest(msg: InboundMessage) -> dict:
     """Land an inbound message in the vault. Returns a summary dict."""
     received_at = msg.received_at or datetime.now(timezone.utc).isoformat(timespec="seconds")
-    route = resolve_route(msg.source, msg.chat_id)
+    if msg.route_override:
+        from .bridges.routes import Route
+        route = Route(client=msg.route_override[0],
+                      project=msg.route_override[1],
+                      source=msg.source)
+    else:
+        route = resolve_route(msg.source, msg.chat_id)
 
     # _unrouted lives outside vault/clients to avoid colliding with real client slugs.
     if route.client == "_unrouted":

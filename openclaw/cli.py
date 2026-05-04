@@ -103,6 +103,32 @@ def brief_cmd(client: str, project: str, event_id: str | None) -> None:
     console.print(f"[green]memory hits:[/] {result['memory_hit_count']}")
 
 
+@main.command("search-monitor")
+@click.option("--client", default=None)
+@click.option("--project", default=None)
+@click.option("--all", "all_", is_flag=True,
+              help="Walk every client/project that has queries.yaml.")
+def search_monitor_cmd(client: str | None, project: str | None, all_: bool) -> None:
+    """OC-027 — run SearXNG queries for a project (or all) and ingest new hits."""
+    from .monitor import searxng
+    if all_:
+        results = searxng.run_for_all()
+    else:
+        if not client or not project:
+            console.print("[red]--client and --project required (or use --all)[/]")
+            sys.exit(2)
+        results = [searxng.run_for_project(client, project)]
+    for r in results:
+        if r.get("skipped"):
+            console.print(f"[yellow]{r['client']}/{r['project']}: skipped — {r.get('reason')}[/]")
+            continue
+        console.print(f"[green]{r['client']}/{r['project']}:[/] "
+                      f"queries={r['queries']} ingested={r['ingested']} "
+                      f"deduped={r['deduped']} errors={len(r['errors'])}")
+        for e in r["errors"]:
+            console.print(f"  [red]err:[/] {e}")
+
+
 @main.command("status")
 @click.option("--client", default="acme")
 @click.option("--project", default="digital-platform")

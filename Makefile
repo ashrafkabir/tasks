@@ -27,6 +27,9 @@ curate-memory:
 brief:
 	$(PY) -m openclaw.cli brief --client acme --project digital-platform
 
+search-monitor:
+	$(PY) -m openclaw.cli search-monitor --all
+
 test:
 	$(PY) -m pytest
 
