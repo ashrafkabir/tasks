@@ -1,5 +1,6 @@
 .PHONY: bootstrap install seed slice approve curate-memory brief test clean llama-chat llama-embed healthz \
-        telegram-bridge wa-bridge wuzapi dashboard search-monitor compose-up compose-down
+        telegram-bridge wa-bridge wuzapi dashboard tunnel \
+        search-monitor compose-up compose-down compose-logs compose-build
 
 PY=.venv/bin/python
 PIP=.venv/bin/pip
@@ -69,3 +70,6 @@ wuzapi:
 
 dashboard:
 	bash scripts/dashboard.sh
+
+tunnel:
+	bash scripts/cloudflared_setup.sh

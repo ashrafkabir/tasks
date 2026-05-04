@@ -1,0 +1,21 @@
+# Copy to ~/.cloudflared/config.yml (or pass via --config) and edit.
+# Reference: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/local-management/configuration-file/
+
+tunnel: <YOUR-TUNNEL-UUID>          # from `cloudflared tunnel create openclaw`
+credentials-file: /home/aifactory/.cloudflared/<YOUR-TUNNEL-UUID>.json
+
+# Order matters — first match wins. Catch-all 404 at the bottom.
+ingress:
+  # Dashboard → http://localhost:8091
+  - hostname: openclaw.<your-zone>.com
+    service: http://localhost:8091
+
+  # OPTIONAL: expose the bridge webhook receiver. Only needed if you want
+  # remote services (e.g. wuzapi running off-host) to POST inbound webhooks.
+  # If wuzapi runs on the same host, leave this commented.
+  # - hostname: wa-bridge.<your-zone>.com
+  #   service: http://localhost:8090
+  #   originRequest:
+  #     httpHostHeader: 127.0.0.1
+
+  - service: http_status:404
