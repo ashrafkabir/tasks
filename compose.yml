@@ -1,0 +1,91 @@
+# OC-025 — OpenClaw service stack.
+#
+# Containerizes the stateless support services that benefit from being managed
+# together. llama-server (chat + embeddings) intentionally stays on the host
+# because the user already maintains a tuned llama.cpp build there and GPU
+# passthrough is not free.
+#
+# Usage:
+#   docker compose up -d            # start everything below
+#   docker compose ps               # see what's up
+#   docker compose logs -f wuzapi   # tail one service
+#   docker compose down             # stop everything (keeps volumes)
+#
+# Ports (all bound to 127.0.0.1 by default):
+#   6333  Qdrant HTTP API
+#   8888  SearXNG
+#   8089  wuzapi (WhatsApp bridge)
+#   8090  OpenClaw bridge HTTP server (wuzapi webhook receiver)
+#   8091  OpenClaw dashboard
+#
+# llama-servers stay on the host:
+#   8080  chat            (make llama-chat)
+#   8081  embeddings      (make llama-embed)
+
+services:
+
+  qdrant:
+    image: qdrant/qdrant:v1.11.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    volumes:
+      - ./data/qdrant-server:/qdrant/storage
+
+  searxng:
+    image: searxng/searxng:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8888:8080"
+    environment:
+      - INSTANCE_NAME=openclaw-local
+      - BASE_URL=http://127.0.0.1:8888/
+    volumes:
+      - ./infra/searxng:/etc/searxng:rw
+
+  wuzapi:
+    image: asternic/wuzapi:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8089:8080"
+    environment:
+      - WUZAPI_ADMIN_TOKEN=${WUZAPI_ADMIN_TOKEN:-change-me-admin-token}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./data/wuzapi:/app/dbdata
+
+  openclaw-bridge:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile.openclaw
+    image: openclaw:local
+    restart: unless-stopped
+    command: ["python", "-m", "openclaw.bridges.server"]
+    network_mode: "host"             # so it can reach llama-server / wuzapi on 127.0.0.1
+    env_file:
+      - .env
+    environment:
+      - OPENCLAW_BRIDGE_HOST=0.0.0.0
+      - OPENCLAW_BRIDGE_PORT=8090
+    volumes:
+      - ./vault:/app/vault
+      - ./data:/app/data
+      - ./tasks:/app/tasks
+    depends_on: [qdrant]
+
+  openclaw-dashboard:
+    image: openclaw:local
+    restart: unless-stopped
+    command: ["python", "-m", "openclaw.dashboard.server"]
+    network_mode: "host"
+    env_file:
+      - .env
+    environment:
+      - OPENCLAW_DASHBOARD_HOST=0.0.0.0
+      - OPENCLAW_DASHBOARD_PORT=8091
+    volumes:
+      - ./vault:/app/vault
+      - ./data:/app/data
+      - ./tasks:/app/tasks
+    depends_on: [qdrant, openclaw-bridge]

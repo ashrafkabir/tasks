@@ -30,6 +30,18 @@ brief:
 search-monitor:
 	$(PY) -m openclaw.cli search-monitor --all
 
+compose-up:
+	docker compose up -d
+
+compose-down:
+	docker compose down
+
+compose-logs:
+	docker compose logs -f --tail=200
+
+compose-build:
+	docker compose build openclaw-bridge openclaw-dashboard
+
 test:
 	$(PY) -m pytest
 
