@@ -1,0 +1,77 @@
+{% if flash is defined and flash %}
+<div class="mb-4 px-4 py-2 rounded text-sm
+  {% if flash.ok %}bg-emerald-50 text-emerald-800 border border-emerald-200
+  {% else %}bg-rose-50 text-rose-800 border border-rose-200{% endif %}">
+  {{ flash.msg }}
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+  <!-- left: answers editor -->
+  <div class="bg-white border border-slate-200 rounded shadow-sm">
+    <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 flex items-center">
+      <span>prd_answers.yaml</span>
+      <span class="ml-2 text-slate-400 normal-case font-normal">{{ answers_text|length }} chars</span>
+    </div>
+
+    <form hx-post="/prd/save" hx-target="#prd-panel" hx-swap="innerHTML" id="answers-form">
+      <input type="hidden" name="client" value="{{ client }}">
+      <input type="hidden" name="project" value="{{ project }}">
+      <textarea name="answers_text"
+                class="w-full font-mono text-xs leading-snug p-3 border-0 focus:ring-0 resize-vertical block"
+                rows="24" spellcheck="false">{{ answers_text }}</textarea>
+      <div class="px-3 py-2 border-t border-slate-100 flex gap-2">
+        <button type="submit"
+                class="bg-slate-700 hover:bg-slate-800 text-white text-sm font-medium px-3 py-1.5 rounded">
+          Save answers
+        </button>
+      </div>
+    </form>
+
+    <form hx-post="/prd/compile" hx-target="#prd-panel" hx-swap="innerHTML"
+          class="px-3 pb-3 -mt-1">
+      <input type="hidden" name="client" value="{{ client }}">
+      <input type="hidden" name="project" value="{{ project }}">
+      <button type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded">
+        Compile PRD from saved answers
+      </button>
+    </form>
+  </div>
+
+  <!-- right: prd.md preview + approve -->
+  <div class="bg-white border border-slate-200 rounded shadow-sm">
+    <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 flex items-center">
+      <span>prd.md</span>
+      {% if approved %}<span class="ml-2 badge-state bg-emerald-100 text-emerald-800">approved</span>{% endif %}
+      <span class="ml-auto text-slate-400 normal-case font-normal">{{ prd_text|length }} chars</span>
+    </div>
+    {% if prd_text %}
+    <pre class="p-4 text-xs font-mono leading-snug whitespace-pre-wrap max-h-[28rem] overflow-auto">{{ prd_text }}</pre>
+    {% else %}
+    <div class="px-4 py-6 text-sm text-slate-400 italic">
+      No prd.md yet. Save the answers on the left, then click <strong>Compile PRD</strong>.
+      Or run <code class="bg-slate-100 px-1 rounded">/grillme</code> in Claude Code to interview-fill the answers.
+    </div>
+    {% endif %}
+
+    <form hx-post="/prd/approve" hx-target="#prd-panel" hx-swap="innerHTML"
+          class="px-3 py-2 border-t border-slate-100 space-y-2" x-data="{auto: true}">
+      <input type="hidden" name="client" value="{{ client }}">
+      <input type="hidden" name="project" value="{{ project }}">
+      <label class="flex items-center gap-2 text-sm text-slate-700">
+        <input type="checkbox" name="run_autoloop" value="1" x-model="auto"
+               {% if approved or not prd_text %}disabled{% endif %}>
+        Run autoloop immediately (drive each new ticket to awaiting_approval)
+      </label>
+      <button type="submit"
+              class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium py-2 rounded
+                     disabled:bg-slate-300 disabled:cursor-not-allowed"
+              {% if approved or not prd_text %}disabled{% endif %}>
+        Approve PRD &amp; spawn tickets
+      </button>
+    </form>
+  </div>
+
+</div>

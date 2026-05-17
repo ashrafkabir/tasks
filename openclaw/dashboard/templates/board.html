@@ -6,10 +6,22 @@
     <h1 class="text-2xl font-bold">{{ client }} / {{ project }}</h1>
     <p class="text-slate-500 text-sm">Kanban board. Click a ticket for detail and approval.</p>
   </div>
-  <div class="ml-auto text-sm">
+  <div class="ml-auto text-sm space-x-3">
+    <a class="text-slate-500 hover:underline"
+       href="/prd?client={{ client }}&project={{ project }}">PRD</a>
     <a class="text-slate-500 hover:underline" href="/">← all engagements</a>
   </div>
 </div>
+
+<form hx-post="/board/autoloop" hx-target="#board" hx-swap="innerHTML"
+      class="mb-3">
+  <input type="hidden" name="client" value="{{ client }}">
+  <input type="hidden" name="project" value="{{ project }}">
+  <button type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded">
+    Run autoloop on backlog →
+  </button>
+</form>
 
 <div id="board"
      hx-get="/board/columns?client={{ client }}&project={{ project }}"

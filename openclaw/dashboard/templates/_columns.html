@@ -1,3 +1,10 @@
+{% if flash is defined and flash %}
+<div class="mb-3 px-4 py-2 rounded text-sm
+  {% if flash.ok %}bg-emerald-50 text-emerald-800 border border-emerald-200
+  {% else %}bg-rose-50 text-rose-800 border border-rose-200{% endif %}">
+  {{ flash.msg }}
+</div>
+{% endif %}
 <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
   {% for col in column_order %}
   <div class="bg-slate-100 rounded p-2 min-h-[120px]">

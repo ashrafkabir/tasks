@@ -16,6 +16,7 @@ import httpx
 from rich.console import Console
 
 from ..ingest import ingest, InboundMessage
+from . import commands
 
 console = Console()
 
@@ -87,49 +88,8 @@ def _is_operator(jid: str) -> bool:
     return bool(op) and jid.split(":")[0].split("@")[0] == op.split(":")[0].split("@")[0]
 
 
-def _handle_command(text: str) -> str | None:
-    """Same vocabulary as the Telegram bot."""
-    parts = text.strip().split()
-    if not parts:
-        return None
-    cmd = parts[0].lower()
-    if cmd == "/help":
-        return ("OpenClaw WA bot. Commands:\n"
-                "  /ticket <kind> <title>\n"
-                "  /run <ticket-id>\n"
-                "  /approve <ticket-id>\n"
-                "  /status")
-    if cmd == "/run" and len(parts) >= 2:
-        from .. import service
-        ticket_id = parts[1]
-        client = os.getenv("OPENCLAW_DEFAULT_CLIENT", "")
-        project = os.getenv("OPENCLAW_DEFAULT_PROJECT", "")
-        try:
-            r = service.run_slice(client, project, ticket_id)
-            return (f"ran slice for {ticket_id}: "
-                    f"verdict={r['reviewer']['verdict']}, "
-                    f"suggestions={len(r['reviewer']['suggestions'])}")
-        except Exception as e:
-            return f"run failed: {e}"
-    if cmd == "/approve" and len(parts) >= 2:
-        from .. import service
-        client = os.getenv("OPENCLAW_DEFAULT_CLIENT", "")
-        project = os.getenv("OPENCLAW_DEFAULT_PROJECT", "")
-        try:
-            r = service.approve(client, project, parts[1], apply_suggestions=True)
-            return f"approved {parts[1]}: commit {r['commit_sha'][:8] or '(none)'}"
-        except Exception as e:
-            return f"approve failed: {e}"
-    if cmd == "/status":
-        from .. import kanban
-        client = os.getenv("OPENCLAW_DEFAULT_CLIENT", "")
-        project = os.getenv("OPENCLAW_DEFAULT_PROJECT", "")
-        try:
-            tickets = kanban.list_tickets(client, project)
-            return "\n".join(f"{t.state}: {t.id} {t.title}" for t in tickets) or "(empty board)"
-        except Exception as e:
-            return f"status failed: {e}"
-    return None
+def _handle_command(text: str, just_spawned_ticket: str | None = None) -> str | None:
+    return commands.dispatch(text, just_spawned_ticket=just_spawned_ticket)
 
 
 def handle_webhook(payload: dict[str, Any]) -> dict:
@@ -152,9 +112,7 @@ def handle_webhook(payload: dict[str, Any]) -> dict:
 
     reply: str | None = None
     if text.startswith("/") and _is_operator(chat):
-        reply = _handle_command(text)
-        if not reply and summary.get("ticket"):
-            reply = f"spawned ticket {summary['ticket']}"
+        reply = _handle_command(text, just_spawned_ticket=summary.get("ticket"))
     elif summary.get("ticket"):
         reply = f"spawned ticket {summary['ticket']}"
 

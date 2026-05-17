@@ -21,7 +21,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import yaml as _yaml  # noqa: F401  (used inside _read_objective via lazy import)
 
-from .. import kanban, audit, service, sqlite_store
+from .. import kanban, audit, service, sqlite_store, task_lifecycle
 from ..config import get_settings
 from ..vault import project_dir, client_dir
 
@@ -271,6 +271,132 @@ def ticket_approve(request: Request, ticket_id: str,
         request, "_ticket_panel.html",
         {"client": client, "project": project,
          "flash": flash, **view},
+    )
+
+
+@app.get("/new-task", response_class=HTMLResponse)
+def new_task_page(request: Request):
+    return templates.TemplateResponse(request, "new_task.html", {})
+
+
+@app.post("/new-task", response_class=HTMLResponse)
+def new_task_submit(request: Request,
+                     client: str = Form(...), project: str = Form(...)):
+    client = client.strip().lower()
+    project = project.strip().lower()
+    if not client or not project:
+        raise HTTPException(status_code=400, detail="client and project required")
+    task_lifecycle.start_task(client, project)
+    return RedirectResponse(
+        url=f"/prd?client={client}&project={project}",
+        status_code=303,
+    )
+
+
+def _read_text(p: Path) -> str:
+    return p.read_text() if p.exists() else ""
+
+
+def _prd_view(client: str, project: str) -> dict:
+    pd = project_dir(client, project)
+    return {
+        "client": client,
+        "project": project,
+        "answers_text": _read_text(pd / "prd_answers.yaml"),
+        "prd_text": _read_text(pd / "prd.md"),
+        "approved": (pd / "prd.approved.md").exists(),
+    }
+
+
+@app.get("/prd", response_class=HTMLResponse)
+def prd_page(request: Request, client: str, project: str):
+    pd = project_dir(client, project)
+    if not pd.exists():
+        raise HTTPException(status_code=404,
+                            detail=f"no project at {client}/{project}")
+    return templates.TemplateResponse(
+        request, "prd_compose.html", _prd_view(client, project),
+    )
+
+
+@app.post("/prd/save", response_class=HTMLResponse)
+def prd_save(request: Request,
+              client: str = Form(...), project: str = Form(...),
+              answers_text: str = Form(...)):
+    pd = project_dir(client, project)
+    if not pd.exists():
+        raise HTTPException(status_code=404, detail="project not found")
+    (pd / "prd_answers.yaml").write_text(answers_text)
+    view = _prd_view(client, project)
+    return templates.TemplateResponse(
+        request, "_prd_panel.html",
+        {"flash": {"ok": True, "msg": "Answers saved."}, **view},
+    )
+
+
+@app.post("/prd/compile", response_class=HTMLResponse)
+def prd_compile(request: Request,
+                 client: str = Form(...), project: str = Form(...)):
+    try:
+        r = task_lifecycle.compile_prd(client, project)
+        flash = {"ok": True, "msg": (
+            f"PRD compiled — {r['ticket_count_planned']} tickets planned."
+        )}
+    except Exception as e:
+        flash = {"ok": False, "msg": f"compile failed: {e}"}
+    view = _prd_view(client, project)
+    return templates.TemplateResponse(
+        request, "_prd_panel.html", {"flash": flash, **view},
+    )
+
+
+@app.post("/prd/approve", response_class=HTMLResponse)
+def prd_approve(request: Request,
+                 client: str = Form(...), project: str = Form(...),
+                 run_autoloop: str | None = Form(default=None)):
+    autoloop = bool(run_autoloop)
+    try:
+        r = task_lifecycle.approve_prd(client, project,
+                                       run_autoloop=autoloop, max_iter=10)
+        if autoloop and "autoloop" in r:
+            extra = (f" Autoloop: {r['autoloop']['iterations']} iterations, "
+                     f"{len(r['autoloop']['awaiting_approval'])} awaiting approval.")
+        else:
+            extra = ""
+        flash = {"ok": True, "msg": (
+            f"PRD approved — {r['ticket_count']} tickets spawned."
+            + extra
+        )}
+    except Exception as e:
+        flash = {"ok": False, "msg": f"approve failed: {e}"}
+    view = _prd_view(client, project)
+    return templates.TemplateResponse(
+        request, "_prd_panel.html", {"flash": flash, **view},
+    )
+
+
+@app.post("/board/autoloop", response_class=HTMLResponse)
+def board_autoloop(request: Request,
+                    client: str = Form(...), project: str = Form(...)):
+    """Run autoloop on existing backlog. Returns the refreshed board."""
+    try:
+        r = task_lifecycle.autoloop(client, project, max_iter=10)
+        flash = {"ok": True, "msg": (
+            f"Autoloop: {r['iterations']} iterations, "
+            f"{len(r['awaiting_approval'])} awaiting approval."
+        )}
+    except Exception as e:
+        flash = {"ok": False, "msg": f"autoloop failed: {e}"}
+    cols = _load_columns(client, project)
+    return templates.TemplateResponse(
+        request, "_columns.html",
+        {
+            "client": client, "project": project,
+            "columns": cols,
+            "column_order": KANBAN_COLUMNS,
+            "column_labels": COLUMN_LABELS,
+            "flash": flash,
+        },
     )
 
 
