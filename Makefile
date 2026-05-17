@@ -1,5 +1,6 @@
 .PHONY: bootstrap install seed slice approve curate-memory brief test clean llama-chat llama-embed healthz \
-        telegram-bridge wa-bridge wuzapi dashboard tunnel \
+        telegram-bridge wa-bridge wuzapi dashboard tunnel worker worker-once \
+        start-task compile-prd approve-prd autoloop \
         search-monitor compose-up compose-down compose-logs compose-build
 
 PY=.venv/bin/python
@@ -42,6 +43,12 @@ approve-prd:
 
 autoloop:
 	$(PY) -m openclaw.cli autoloop --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
+
+worker:
+	$(PY) -m openclaw.cli worker --interval $${INTERVAL:-300}
+
+worker-once:
+	$(PY) -m openclaw.cli worker --once
 
 compose-up:
 	docker compose up -d

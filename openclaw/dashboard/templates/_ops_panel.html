@@ -1,0 +1,114 @@
+<!-- HEALTH STRIP -->
+<div class="bg-white border border-slate-200 rounded shadow-sm mb-4">
+  <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 flex items-center">
+    <span>Services</span>
+    <span class="ml-2 text-slate-400 normal-case font-normal">
+      {{ health.ok_count }}/{{ health.total }} healthy
+    </span>
+  </div>
+  <ul class="px-4 py-2 flex flex-wrap gap-3 text-sm">
+    {% for s in health.services %}
+    <li class="flex items-center gap-2"
+        x-data x-tooltip="{{ s.error if not s.ok else s.url }}">
+      <span class="w-2 h-2 rounded-full
+        {% if s.ok %}bg-emerald-500{% else %}bg-rose-500{% endif %}"></span>
+      <span class="font-medium">{{ s.name }}</span>
+      {% if not s.ok and s.error %}<span class="text-xs text-rose-700">{{ s.error[:60] }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<!-- QUEUE TOTALS -->
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+  {% for col in column_order %}
+  <div class="bg-white border border-slate-200 rounded shadow-sm p-3">
+    <div class="text-xs uppercase tracking-wider text-slate-500">{{ column_labels[col] }}</div>
+    <div class="text-2xl font-bold {% if col == 'awaiting_approval' and queue_totals[col] %}text-amber-700{% endif %}">
+      {{ queue_totals[col] }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+  <!-- ENGAGEMENTS + WORKERS -->
+  <div class="space-y-4">
+    <div class="bg-white border border-slate-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500">
+        Workers ({{ workers|length }})
+      </div>
+      {% if not workers %}
+      <div class="px-4 py-3 text-sm text-slate-400 italic">No worker running. Start: <code class="bg-slate-100 px-1 rounded">make worker</code></div>
+      {% else %}
+      <ul class="divide-y divide-slate-100">
+        {% for w in workers %}
+        <li class="px-4 py-2 text-sm">
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-xs">{{ w.worker_id }}</span>
+            <span class="ml-auto text-xs text-slate-500">pid={{ w.pid }} · {{ w.iterations }} ticks</span>
+          </div>
+          <div class="text-xs text-slate-400">last seen {{ w.last_seen }}</div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded shadow-sm">
+      <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500 flex items-center">
+        <span>Engagements ({{ engagements|length }})</span>
+        <a class="ml-auto text-xs text-blue-700 hover:underline" href="/new-task">+ new</a>
+      </div>
+      {% if not engagements %}
+      <div class="px-4 py-3 text-sm text-slate-400 italic">No engagements yet.</div>
+      {% else %}
+      <ul class="divide-y divide-slate-100">
+        {% for e in engagements %}
+        <li class="px-4 py-2 text-sm">
+          <a class="text-blue-700 hover:underline"
+             href="/board?client={{ e.client }}&project={{ e.project }}">{{ e.client }} / {{ e.project }}</a>
+          <div class="text-xs text-slate-400">
+            backlog={{ e.counts.backlog }}
+            · in&nbsp;progress={{ e.counts.in_progress }}
+            · <span class="{% if e.counts.awaiting_approval %}text-amber-700 font-medium{% endif %}">awaiting={{ e.counts.awaiting_approval }}</span>
+            · done={{ e.counts.done }}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ACTIVITY FEED -->
+  <div class="lg:col-span-2 bg-white border border-slate-200 rounded shadow-sm">
+    <div class="px-4 py-2 border-b border-slate-100 text-xs uppercase tracking-wider text-slate-500">
+      Activity ({{ feed|length }})
+    </div>
+    {% if not feed %}
+    <div class="px-4 py-3 text-sm text-slate-400 italic">No activity yet.</div>
+    {% else %}
+    <ul class="divide-y divide-slate-100">
+      {% for row in feed %}
+      <li class="px-4 py-2 text-sm flex gap-3">
+        <span class="text-xs text-slate-400 shrink-0 w-44 font-mono">{{ row.ts }}</span>
+        <span class="badge-state shrink-0 w-20 text-center
+          {% if row.kind == 'event' %}bg-slate-100 text-slate-700
+          {% elif row.kind == 'run' %}bg-blue-100 text-blue-800
+          {% elif row.kind == 'approval' %}bg-emerald-100 text-emerald-800
+          {% endif %}">{{ row.kind }}</span>
+        {% if row.client %}
+        <span class="text-xs text-slate-500 shrink-0 w-40 truncate">{{ row.client }}/{{ row.project }}</span>
+        {% else %}
+        <span class="shrink-0 w-40"></span>
+        {% endif %}
+        <span class="flex-1 truncate">{{ row.summary }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+
+</div>

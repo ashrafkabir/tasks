@@ -24,6 +24,7 @@ import yaml as _yaml  # noqa: F401  (used inside _read_objective via lazy import
 from .. import kanban, audit, service, sqlite_store, task_lifecycle
 from ..config import get_settings
 from ..vault import project_dir, client_dir
+from . import health as health_probe
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
@@ -398,6 +399,53 @@ def board_autoloop(request: Request,
             "flash": flash,
         },
     )
+
+
+def _ops_view() -> dict:
+    """Aggregate everything the ops console needs in one dict."""
+    health = health_probe.snapshot()
+    feed = sqlite_store.activity_feed(limit=50)
+    queue = sqlite_store.queue_summary()
+    workers = sqlite_store.list_workers()
+
+    # Aggregate queue across all engagements.
+    totals = {col: 0 for col in KANBAN_COLUMNS}
+    for row in queue:
+        st = row["state"]
+        if st in totals:
+            totals[st] += row["n"]
+    return {
+        "health": health,
+        "feed": feed,
+        "queue": queue,
+        "queue_totals": totals,
+        "workers": workers,
+        "engagements": _list_engagements(),
+        "column_order": KANBAN_COLUMNS,
+        "column_labels": COLUMN_LABELS,
+        "now": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(timespec="seconds"),
+    }
+
+
+@app.get("/ops", response_class=HTMLResponse)
+def ops_page(request: Request):
+    return templates.TemplateResponse(request, "ops.html", _ops_view())
+
+
+@app.get("/ops/panel", response_class=HTMLResponse)
+def ops_panel(request: Request):
+    """HTMX partial for live refresh of the ops console."""
+    return templates.TemplateResponse(request, "_ops_panel.html", _ops_view())
+
+
+@app.get("/ops/health.json")
+def ops_health_json() -> dict:
+    return health_probe.snapshot()
+
+
+@app.get("/ops/feed.json")
+def ops_feed_json(limit: int = 50) -> dict:
+    return {"feed": sqlite_store.activity_feed(limit=limit)}
 
 
 def main() -> None:

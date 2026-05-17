@@ -13,7 +13,7 @@ from . import kanban, audit, sqlite_store, git_sync, service
 from .vault import project_dir, audit_dir
 from .schemas import Ticket
 from .agents import implementer, reviewer, memory_curator, briefer
-from . import task_lifecycle
+from . import task_lifecycle, worker as worker_mod
 
 console = Console()
 
@@ -212,6 +212,28 @@ def _print_autoloop(r: dict) -> None:
     if r["awaiting_approval"]:
         console.print()
         console.print(r["next"])
+
+
+@main.command("worker")
+@click.option("--interval", default=300, type=int,
+              help="Seconds between ticks (default 300).")
+@click.option("--max-iter-per-project", default=5, type=int)
+@click.option("--once", is_flag=True, help="Run a single tick and exit.")
+def worker_cmd(interval: int, max_iter_per_project: int, once: bool) -> None:
+    """Long-running background runner: autoloop every opted-in project.
+
+    Each project must:
+      - have prd.approved.md present, AND
+      - either set autoloop_enabled: true in project.yaml,
+        OR be listed in vault/shared/worker.yaml under `enable:`.
+
+    Heartbeats are visible at /ops on the dashboard.
+    """
+    console.rule(f"[bold cyan]openclaw worker interval={interval}s")
+    r = worker_mod.run(interval=interval,
+                       max_iter_per_project=max_iter_per_project, once=once)
+    console.print(f"[green]worker:[/] {r['worker_id']} stopped after "
+                  f"{r['iterations']} iterations")
 
 
 @main.command("replay")

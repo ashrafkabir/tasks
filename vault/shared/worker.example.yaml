@@ -1,0 +1,11 @@
+# Copy to worker.yaml. Lists projects the background worker should drive.
+#
+# Each entry must have an approved PRD (prd.approved.md present). Projects
+# not listed here can still be opted-in per-project by adding
+# `autoloop_enabled: true` to their project.yaml.
+
+enable:
+  - client: acme
+    project: digital-platform
+  # - client: contoso
+  #   project: ai-rollout

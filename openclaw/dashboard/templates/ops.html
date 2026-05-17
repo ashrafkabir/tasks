@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}OpenClaw — ops console{% endblock %}
+{% block body %}
+<div class="flex items-center mb-4">
+  <div>
+    <h1 class="text-2xl font-bold">Ops console</h1>
+    <p class="text-slate-500 text-sm">Live view of services, queue, workers, and recent activity.</p>
+  </div>
+  <div class="ml-auto text-xs text-slate-400">auto-refresh every 5s · last update <span class="font-mono">{{ now }}</span></div>
+</div>
+
+<div id="ops"
+     hx-get="/ops/panel"
+     hx-trigger="every 5s"
+     hx-swap="innerHTML">
+  {% include "_ops_panel.html" %}
+</div>
+{% endblock %}

@@ -24,7 +24,8 @@ make slice              # seed → run-slice (implementer + reviewer + awaiting_
 make approve            # approve --apply → done → tasks repo commit
 make test               # 47 tests, all green
 make dashboard          # http://127.0.0.1:8091 — kanban + ticket detail + audit timeline
-make compose-up         # qdrant + searxng + wuzapi + bridge + dashboard (containers)
+make compose-up         # qdrant + searxng + wuzapi + bridge + dashboard + worker (containers)
+make worker             # background runner — drives every opted-in project's backlog
 make tunnel             # bring the dashboard online over Cloudflared + Access (free tier)
 ```
 
@@ -64,6 +65,29 @@ tasks repo remains human-gated, per `DECISIONS.md`.
 By default, the slice runs in `OPENCLAW_LLM_MODE=stub` (deterministic local
 responder) so it works without a llama-server up. See `vault/shared/MODEL_NOTES.md`
 for the live-mode steps.
+
+## Ops console + background worker
+
+`http://127.0.0.1:8091/ops` is a single-screen live view:
+- **Health strip** — green/red dots for llama-chat (:8080), llama-embed (:8081),
+  qdrant (if `OPENCLAW_QDRANT_URL` set), bridge server (:8090), searxng (:8888).
+- **Queue totals** — backlog / in_progress / awaiting_approval / approved / done,
+  aggregated across all engagements.
+- **Workers** — live heartbeats from background `openclaw worker` instances.
+- **Activity feed** — unified stream of events, agent runs, and approvals.
+- **Engagements** — every (client, project) with state counts.
+
+Auto-refreshes every 5 seconds via HTMX. Also exposes JSON endpoints
+`/ops/health.json` and `/ops/feed.json` if you want to scrape it.
+
+The background **worker** (`make worker` or via Compose) ticks every N seconds
+and runs autoloop on any project that:
+1. has `prd.approved.md` present, AND
+2. is opted in either via `autoloop_enabled: true` in `project.yaml`, or by
+   appearing in `vault/shared/worker.yaml` (see `worker.example.yaml`).
+
+It never auto-approves — every artifact still lands at `awaiting_approval`
+for the human gate.
 
 ## Memory curation (OC-021)
 

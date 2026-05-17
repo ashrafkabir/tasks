@@ -60,6 +60,15 @@ CREATE TABLE IF NOT EXISTS curated_events (
     fact_count  INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_curated_client ON curated_events(client, curated_at DESC);
+
+CREATE TABLE IF NOT EXISTS worker_heartbeats (
+    worker_id   TEXT PRIMARY KEY,
+    pid         INTEGER,
+    started_at  TEXT NOT NULL,
+    last_seen   TEXT NOT NULL,
+    iterations  INTEGER NOT NULL DEFAULT 0,
+    last_payload TEXT
+);
 """
 
 
@@ -173,3 +182,69 @@ def mark_curated(event_id: str, client: str, run_id: str, fact_count: int) -> No
             "INSERT OR REPLACE INTO curated_events VALUES (?, ?, ?, ?, ?)",
             (event_id, client, run_id, _now(), fact_count),
         )
+
+
+def heartbeat(worker_id: str, pid: int, iterations: int,
+              payload: str | None = None) -> None:
+    """Insert-or-update a worker heartbeat row."""
+    with connect() as c:
+        existing = c.execute(
+            "SELECT started_at FROM worker_heartbeats WHERE worker_id=?",
+            (worker_id,),
+        ).fetchone()
+        started_at = existing["started_at"] if existing else _now()
+        c.execute(
+            "INSERT OR REPLACE INTO worker_heartbeats VALUES (?, ?, ?, ?, ?, ?)",
+            (worker_id, pid, started_at, _now(), iterations, payload),
+        )
+
+
+def list_workers() -> list[dict]:
+    with connect() as c:
+        rows = c.execute(
+            "SELECT * FROM worker_heartbeats ORDER BY last_seen DESC"
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def activity_feed(limit: int = 50) -> list[dict]:
+    """Unified recent-activity stream across events, runs, approvals.
+
+    Each row has at least: ts (ISO), kind, client, project, summary.
+    """
+    with connect() as c:
+        rows = c.execute(
+            """
+            SELECT received_at AS ts, 'event' AS kind, client, project,
+                   (source || ': ' || title) AS summary, id AS ref
+              FROM events
+            UNION ALL
+            SELECT started_at AS ts, 'run' AS kind,
+                   '' AS client, '' AS project,
+                   (agent || ' on ' || ticket_id || ' [' || status || ']') AS summary,
+                   id AS ref
+              FROM runs
+            UNION ALL
+            SELECT decided_at AS ts, 'approval' AS kind,
+                   '' AS client, '' AS project,
+                   (decision || ' on ' || ticket_id) AS summary,
+                   ticket_id AS ref
+              FROM approvals
+            ORDER BY ts DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def queue_summary() -> list[dict]:
+    """Per (client, project, state) counts of tickets in SQLite. Used for the
+    ops console aggregate view."""
+    with connect() as c:
+        rows = c.execute(
+            "SELECT client, project, state, COUNT(*) AS n "
+            "FROM tickets GROUP BY client, project, state "
+            "ORDER BY client, project, state"
+        ).fetchall()
+        return [dict(r) for r in rows]

@@ -89,3 +89,16 @@ services:
       - ./data:/app/data
       - ./tasks:/app/tasks
     depends_on: [qdrant, openclaw-bridge]
+
+  openclaw-worker:
+    image: openclaw:local
+    restart: unless-stopped
+    command: ["python", "-m", "openclaw.cli", "worker", "--interval", "300"]
+    network_mode: "host"
+    env_file:
+      - .env
+    volumes:
+      - ./vault:/app/vault
+      - ./data:/app/data
+      - ./tasks:/app/tasks
+    depends_on: [qdrant, openclaw-bridge]
