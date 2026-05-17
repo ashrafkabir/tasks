@@ -31,6 +31,18 @@ brief:
 search-monitor:
 	$(PY) -m openclaw.cli search-monitor --all
 
+start-task:
+	$(PY) -m openclaw.cli start-task --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
+
+compile-prd:
+	$(PY) -m openclaw.cli compile-prd --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
+
+approve-prd:
+	$(PY) -m openclaw.cli approve-prd --client $${CLIENT:-acme} --project $${PROJECT:-new-task} --autoloop
+
+autoloop:
+	$(PY) -m openclaw.cli autoloop --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
+
 compose-up:
 	docker compose up -d
 

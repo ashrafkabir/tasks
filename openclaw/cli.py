@@ -13,6 +13,7 @@ from . import kanban, audit, sqlite_store, git_sync, service
 from .vault import project_dir, audit_dir
 from .schemas import Ticket
 from .agents import implementer, reviewer, memory_curator, briefer
+from . import task_lifecycle
 
 console = Console()
 
@@ -127,6 +128,90 @@ def search_monitor_cmd(client: str | None, project: str | None, all_: bool) -> N
                       f"deduped={r['deduped']} errors={len(r['errors'])}")
         for e in r["errors"]:
             console.print(f"  [red]err:[/] {e}")
+
+
+@main.command("start-task")
+@click.option("--client", required=True)
+@click.option("--project", required=True)
+@click.option("--display-name", default=None)
+@click.option("--objective", default=None)
+def start_task_cmd(client: str, project: str,
+                   display_name: str | None, objective: str | None) -> None:
+    """Create a new project folder + prd_answers.yaml skeleton."""
+    console.rule(f"[bold cyan]openclaw start-task {client}/{project}")
+    r = task_lifecycle.start_task(client, project,
+                                   display_name=display_name, objective=objective)
+    console.print(f"[green]project dir :[/] {r['project_dir']}")
+    console.print(f"[green]answers     :[/] {r['answers_path']}")
+    console.print()
+    console.print(r["next"])
+
+
+@main.command("compile-prd")
+@click.option("--client", required=True)
+@click.option("--project", required=True)
+def compile_prd_cmd(client: str, project: str) -> None:
+    """Compile prd_answers.yaml into prd.md."""
+    console.rule(f"[bold cyan]openclaw compile-prd {client}/{project}")
+    try:
+        r = task_lifecycle.compile_prd(client, project)
+    except FileNotFoundError as e:
+        console.print(f"[red]{e}[/]")
+        sys.exit(2)
+    console.print(f"[green]prd     :[/] {r['prd_path']}")
+    console.print(f"[green]tickets :[/] {r['ticket_count_planned']} planned")
+    console.print()
+    console.print(f"Review the prd, then: [cyan]openclaw approve-prd "
+                  f"--client {client} --project {project}[/]")
+
+
+@main.command("approve-prd")
+@click.option("--client", required=True)
+@click.option("--project", required=True)
+@click.option("--autoloop/--no-autoloop", default=False,
+              help="Run the autonomous loop immediately after approval.")
+@click.option("--max-iter", default=10, type=int)
+def approve_prd_cmd(client: str, project: str, autoloop: bool, max_iter: int) -> None:
+    """Approve the PRD, spawn backlog tickets, optionally run the autoloop."""
+    console.rule(f"[bold cyan]openclaw approve-prd {client}/{project}")
+    try:
+        r = task_lifecycle.approve_prd(client, project,
+                                       run_autoloop=autoloop, max_iter=max_iter)
+    except (FileNotFoundError, ValueError) as e:
+        console.print(f"[red]{e}[/]")
+        sys.exit(2)
+    console.print(f"[green]approved :[/] {r['approved_path']}")
+    console.print(f"[green]tickets  :[/] {r['ticket_count']} spawned: {r['ticket_ids']}")
+    if "autoloop" in r:
+        _print_autoloop(r["autoloop"])
+    else:
+        console.print()
+        console.print(r["next"])
+
+
+@main.command("autoloop")
+@click.option("--client", required=True)
+@click.option("--project", required=True)
+@click.option("--max-iter", default=10, type=int)
+def autoloop_cmd(client: str, project: str, max_iter: int) -> None:
+    """Drive every backlog ticket through awaiting_approval. Stops at the human gate."""
+    console.rule(f"[bold cyan]openclaw autoloop {client}/{project}")
+    r = task_lifecycle.autoloop(client, project, max_iter=max_iter)
+    _print_autoloop(r)
+
+
+def _print_autoloop(r: dict) -> None:
+    console.print(f"[green]iterations  :[/] {r['iterations']}")
+    for p in r["processed"]:
+        if "error" in p:
+            console.print(f"  [red]{p['ticket_id']} error: {p['error']}[/]")
+        else:
+            console.print(f"  {p['ticket_id']} → {p['verdict']} "
+                          f"({p['suggestions']} suggestions)")
+    console.print(f"[green]awaiting    :[/] {r['awaiting_approval']}")
+    if r["awaiting_approval"]:
+        console.print()
+        console.print(r["next"])
 
 
 @main.command("replay")

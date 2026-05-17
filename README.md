@@ -29,10 +29,37 @@ make tunnel             # bring the dashboard online over Cloudflared + Access (
 ```
 
 CLI surface (`openclaw <subcommand> --help`):
+- `start-task`, `compile-prd`, `approve-prd`, `autoloop`
 - `run-slice`, `approve`, `status`
 - `curate-memory`, `brief`
 - `search-monitor`
 - `replay`
+
+## New-engagement flow
+
+```bash
+# 1. Create the project folder + answers skeleton.
+openclaw start-task --client contoso --project board-pitch
+
+# 2. Fill in vault/clients/contoso/projects/board-pitch/prd_answers.yaml
+#    Either run /grillme in Claude Code (interactive interviewer skill),
+#    or edit the YAML by hand.
+
+# 3. Render the PRD from answers.
+openclaw compile-prd --client contoso --project board-pitch
+
+# 4. Approve the plan → tickets spawn into backlog → autoloop drives each
+#    through implementer + reviewer → all land at awaiting_approval.
+openclaw approve-prd --client contoso --project board-pitch --autoloop
+
+# 5. Approve each artifact at the human gate (still required — option iii).
+openclaw approve OC-T-001 --client contoso --project board-pitch --apply
+openclaw approve OC-T-002 --client contoso --project board-pitch --apply
+```
+
+The `autoloop` only drives `backlog → awaiting_approval`. The final
+`approve` step that promotes a draft to an artifact and commits to the
+tasks repo remains human-gated, per `DECISIONS.md`.
 
 By default, the slice runs in `OPENCLAW_LLM_MODE=stub` (deterministic local
 responder) so it works without a llama-server up. See `vault/shared/MODEL_NOTES.md`

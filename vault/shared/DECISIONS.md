@@ -28,6 +28,31 @@ approval gate → git commit) without depending on a model load. Stub responses 
 plainly tagged in the audit trace ("llm_mode": "stub"), so they cannot be confused
 with live output downstream.
 
+## 2026-05-17 — Task lifecycle: start-task → compile-prd → approve-prd → autoloop
+
+New meta-layer above tickets. A "task" creates a project folder, captures a
+PRD, spawns the initial backlog, and runs the autoloop. Three components:
+
+1. **`grillme` Claude Code skill** at `~/.claude/skills/grillme/SKILL.md`.
+   Interactive PRD interviewer. Reads/writes the same files OpenClaw
+   produces: `prd_answers.yaml` and `prd.md` in
+   `vault/clients/<c>/projects/<p>/`.
+
+2. **Headless `openclaw.agents.interviewer`** — file-driven equivalent for
+   chat-bridge flows where `grillme` (Claude Code only) is not available.
+   Template-only in v1; no LLM call. The user's answers go in verbatim.
+
+3. **`openclaw.task_lifecycle`** — `start_task`, `compile_prd`,
+   `approve_prd`, `autoloop`. The planner (`openclaw.agents.planner`) is a
+   deterministic regex parser of the PRD's `## 8. Ticket plan (initial)`
+   section. No LLM in the ticket-spawn path — keeps the contract clear.
+
+**Autonomy policy (option iii, ratified):** the autoloop drives every
+backlog ticket through `awaiting_approval` and stops. The final approval
+that promotes a draft to an artifact and commits to the tasks repo is
+**always human-gated**. The constraint "no irreversible action without
+explicit human approval" is preserved end-to-end.
+
 ## 2026-05-04 — GitHub remote layout: nested under `task/openclaw/`
 
 OpenClaw shares the `github.com/ashrafkabir/tasks` repo with the user's other
