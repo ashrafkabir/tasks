@@ -1,13 +1,13 @@
 # Copy to ~/.cloudflared/config.yml (or pass via --config) and edit.
 # Reference: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/local-management/configuration-file/
 
-tunnel: <YOUR-TUNNEL-UUID>          # from `cloudflared tunnel create openclaw`
+tunnel: <YOUR-TUNNEL-UUID>          # from `cloudflared tunnel create consilo`
 credentials-file: /home/aifactory/.cloudflared/<YOUR-TUNNEL-UUID>.json
 
 # Order matters — first match wins. Catch-all 404 at the bottom.
 ingress:
   # Dashboard → http://localhost:8091
-  - hostname: openclaw.<your-zone>.com
+  - hostname: consilo.<your-zone>.com
     service: http://localhost:8091
 
   # OPTIONAL: expose the bridge webhook receiver. Only needed if you want

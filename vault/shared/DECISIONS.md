@@ -1,4 +1,4 @@
-# OpenClaw — Decisions log
+# Consilo — Decisions log
 
 Append-only. Each entry: date, decision, rationale, alternatives considered.
 
@@ -19,9 +19,9 @@ questions. Defaults locked:
 
 ## 2026-05-03 — Stub LLM mode for proving slice
 
-The proving slice runs in `OPENCLAW_LLM_MODE=stub` by default, with a deterministic
-local responder in `openclaw/llm.py`. Live mode talks to llama-server and is
-enabled by setting `OPENCLAW_LLM_MODE=live` plus starting `make llama-chat`.
+The proving slice runs in `CONSILO_LLM_MODE=stub` by default, with a deterministic
+local responder in `consilo/llm.py`. Live mode talks to llama-server and is
+enabled by setting `CONSILO_LLM_MODE=live` plus starting `make llama-chat`.
 
 Why: lets the slice prove plumbing (vault → context bundle → agent run → audit →
 approval gate → git commit) without depending on a model load. Stub responses are
@@ -34,16 +34,16 @@ New meta-layer above tickets. A "task" creates a project folder, captures a
 PRD, spawns the initial backlog, and runs the autoloop. Three components:
 
 1. **`grillme` Claude Code skill** at `~/.claude/skills/grillme/SKILL.md`.
-   Interactive PRD interviewer. Reads/writes the same files OpenClaw
+   Interactive PRD interviewer. Reads/writes the same files Consilo
    produces: `prd_answers.yaml` and `prd.md` in
    `vault/clients/<c>/projects/<p>/`.
 
-2. **Headless `openclaw.agents.interviewer`** — file-driven equivalent for
+2. **Headless `consilo.agents.interviewer`** — file-driven equivalent for
    chat-bridge flows where `grillme` (Claude Code only) is not available.
    Template-only in v1; no LLM call. The user's answers go in verbatim.
 
-3. **`openclaw.task_lifecycle`** — `start_task`, `compile_prd`,
-   `approve_prd`, `autoloop`. The planner (`openclaw.agents.planner`) is a
+3. **`consilo.task_lifecycle`** — `start_task`, `compile_prd`,
+   `approve_prd`, `autoloop`. The planner (`consilo.agents.planner`) is a
    deterministic regex parser of the PRD's `## 8. Ticket plan (initial)`
    section. No LLM in the ticket-spawn path — keeps the contract clear.
 
@@ -53,16 +53,16 @@ that promotes a draft to an artifact and commits to the tasks repo is
 **always human-gated**. The constraint "no irreversible action without
 explicit human approval" is preserved end-to-end.
 
-## 2026-05-04 — GitHub remote layout: nested under `task/openclaw/`
+## 2026-05-04 — GitHub remote layout: nested under `task/consilo/`
 
-OpenClaw shares the `github.com/ashrafkabir/tasks` repo with the user's other
+Consilo shares the `github.com/ashrafkabir/tasks` repo with the user's other
 work (sibling branches: `task/agentlens`, `traderapp_whatsapp`). To avoid
-colliding with those and to keep all OpenClaw refs grouped:
+colliding with those and to keep all Consilo refs grouped:
 
-- `task/openclaw/source` — source code, mirrored from local `main`.
-- `task/openclaw/<client>/<project>` — audit + artifact branch per engagement.
+- `task/consilo/source` — source code, mirrored from local `main`.
+- `task/consilo/<client>/<project>` — audit + artifact branch per engagement.
 
-**Do not** create a `task/openclaw` leaf branch — it would block the
+**Do not** create a `task/consilo` leaf branch — it would block the
 namespace for engagement branches.
 
 For now, pushing remains manual: `git push` from the source repo, and
@@ -73,7 +73,7 @@ offline).
 
 ## 2026-05-04 — Memory-Curator (OC-021): client-scoped, idempotent, no auto-trigger
 
-The curator is **explicitly invoked** (`openclaw curate-memory --client X`)
+The curator is **explicitly invoked** (`consilo curate-memory --client X`)
 rather than auto-firing after each ingest. Reason: keeping it operator-driven
 avoids spamming the LLM on every chat message and lets Ashraf batch-curate
 when context warrants it.
@@ -102,7 +102,7 @@ UI assets via CDN (`cdn.tailwindcss.com`, `unpkg.com/htmx.org`,
 to those CDNs from the operator's browser; nothing about clients ever leaves
 the machine. Easy to vendor locally if desired.
 
-**Service-layer extraction.** Created `openclaw.service` with `run_slice` and
+**Service-layer extraction.** Created `consilo.service` with `run_slice` and
 `approve` so the CLI, both bridges, and the dashboard call the same code path
 and produce identical audit traces. Previously the bridges duplicated the
 slice logic and shelled out to the CLI for approval.
@@ -126,19 +126,19 @@ Standard practice for personal/operator-only use. If WA ever escalates this
 posture, swap OC-026 to the sanctioned Cloud API path (Meta business account
 needed; free tier exists).
 
-**Shared ingest pipeline (OC-022b):** both bridges feed `openclaw.ingest`,
+**Shared ingest pipeline (OC-022b):** both bridges feed `consilo.ingest`,
 which writes the event MD, records SQLite, embeds into Qdrant, and applies
 spawn rules. `/ticket <kind> <title>` is the only auto-spawn rule (operator
 keeps control). Routing via `vault/shared/chat_routes.yaml` with env defaults.
 
-**Outbound notify (`openclaw.notify`):** kanban transitions to
+**Outbound notify (`consilo.notify`):** kanban transitions to
 `awaiting_approval` automatically broadcast to all configured channels.
-`OPENCLAW_NOTIFY_MODE=stub` (default) records to a session-local sink so
+`CONSILO_NOTIFY_MODE=stub` (default) records to a session-local sink so
 tests stay offline; `live` attempts real sends and never raises on failure.
 
 ## 2026-05-03 — Qdrant embedded mode for the slice
 
 `qdrant-client` is used in local persistent mode (`QdrantClient(path=...)`).
-No Qdrant server is required for the slice. Setting `OPENCLAW_QDRANT_URL`
+No Qdrant server is required for the slice. Setting `CONSILO_QDRANT_URL`
 switches to a running OSS server when scaled out. Both code paths are OSS and
 free.

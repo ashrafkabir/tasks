@@ -4,7 +4,7 @@
 #   chat_id: numeric (Telegram) or full JID (WhatsApp, e.g. 12025550100@s.whatsapp.net)
 #   client / project: must match an existing slug under vault/clients/
 #
-# If a chat does not match any route here, OPENCLAW_DEFAULT_CLIENT/PROJECT
+# If a chat does not match any route here, CONSILO_DEFAULT_CLIENT/PROJECT
 # from .env is used. If unset, events land in vault/clients/_unrouted/.
 
 routes:

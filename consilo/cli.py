@@ -1,4 +1,4 @@
-"""OC-015 + OC-017 — `openclaw` CLI: approval gate + run-slice driver."""
+"""OC-015 + OC-017 — `consilo` CLI: approval gate + run-slice driver."""
 from __future__ import annotations
 import json
 import shutil
@@ -20,7 +20,7 @@ console = Console()
 
 @click.group()
 def main() -> None:
-    """OpenClaw — local-first agentic OS."""
+    """Consilo — local-first agentic OS."""
 
 
 @main.command("run-slice")
@@ -29,7 +29,7 @@ def main() -> None:
 @click.option("--ticket", "ticket_id", default="OC-T-001")
 def run_slice(client: str, project: str, ticket_id: str) -> None:
     """Drive the proving slice: implementer → reviewer → awaiting_approval."""
-    console.rule(f"[bold cyan]openclaw run-slice {client}/{project}/{ticket_id}")
+    console.rule(f"[bold cyan]consilo run-slice {client}/{project}/{ticket_id}")
     result = service.run_slice(client, project, ticket_id)
     console.print(f"[green]→ in_progress[/]")
     console.print("[bold]Implementer running…[/]")
@@ -41,7 +41,7 @@ def run_slice(client: str, project: str, ticket_id: str) -> None:
     console.print(f"  audit: {result['reviewer']['audit_path']}")
     console.print(f"[green]→ awaiting_approval[/]")
     console.print()
-    console.print(f"[bold]Approve with:[/] [cyan]openclaw approve {ticket_id} --client {client} --project {project} --apply[/]")
+    console.print(f"[bold]Approve with:[/] [cyan]consilo approve {ticket_id} --client {client} --project {project} --apply[/]")
 
 
 @main.command("approve")
@@ -73,7 +73,7 @@ def approve_cmd(ticket_id: str, client: str, project: str, apply: bool,
               help="ISO timestamp; only consider events received at or after.")
 def curate_memory_cmd(client: str, project: str | None, since: str | None) -> None:
     """OC-021 — extract durable facts from uncurated events into memory.md + Qdrant."""
-    console.rule(f"[bold cyan]openclaw curate-memory client={client}")
+    console.rule(f"[bold cyan]consilo curate-memory client={client}")
     result = memory_curator.run(client, project=project, since=since)
     if result.get("skipped"):
         console.print(f"[yellow]skipped:[/] {result.get('reason')}")
@@ -92,7 +92,7 @@ def curate_memory_cmd(client: str, project: str | None, since: str | None) -> No
               help="Brief about a specific event id; defaults to latest event.")
 def brief_cmd(client: str, project: str, event_id: str | None) -> None:
     """OC-022 — synthesize a CxO briefing markdown into briefs/."""
-    console.rule(f"[bold cyan]openclaw brief {client}/{project}")
+    console.rule(f"[bold cyan]consilo brief {client}/{project}")
     try:
         result = briefer.run(client, project, event_id=event_id)
     except FileNotFoundError as e:
@@ -138,7 +138,7 @@ def search_monitor_cmd(client: str | None, project: str | None, all_: bool) -> N
 def start_task_cmd(client: str, project: str,
                    display_name: str | None, objective: str | None) -> None:
     """Create a new project folder + prd_answers.yaml skeleton."""
-    console.rule(f"[bold cyan]openclaw start-task {client}/{project}")
+    console.rule(f"[bold cyan]consilo start-task {client}/{project}")
     r = task_lifecycle.start_task(client, project,
                                    display_name=display_name, objective=objective)
     console.print(f"[green]project dir :[/] {r['project_dir']}")
@@ -152,7 +152,7 @@ def start_task_cmd(client: str, project: str,
 @click.option("--project", required=True)
 def compile_prd_cmd(client: str, project: str) -> None:
     """Compile prd_answers.yaml into prd.md."""
-    console.rule(f"[bold cyan]openclaw compile-prd {client}/{project}")
+    console.rule(f"[bold cyan]consilo compile-prd {client}/{project}")
     try:
         r = task_lifecycle.compile_prd(client, project)
     except FileNotFoundError as e:
@@ -161,7 +161,7 @@ def compile_prd_cmd(client: str, project: str) -> None:
     console.print(f"[green]prd     :[/] {r['prd_path']}")
     console.print(f"[green]tickets :[/] {r['ticket_count_planned']} planned")
     console.print()
-    console.print(f"Review the prd, then: [cyan]openclaw approve-prd "
+    console.print(f"Review the prd, then: [cyan]consilo approve-prd "
                   f"--client {client} --project {project}[/]")
 
 
@@ -173,7 +173,7 @@ def compile_prd_cmd(client: str, project: str) -> None:
 @click.option("--max-iter", default=10, type=int)
 def approve_prd_cmd(client: str, project: str, autoloop: bool, max_iter: int) -> None:
     """Approve the PRD, spawn backlog tickets, optionally run the autoloop."""
-    console.rule(f"[bold cyan]openclaw approve-prd {client}/{project}")
+    console.rule(f"[bold cyan]consilo approve-prd {client}/{project}")
     try:
         r = task_lifecycle.approve_prd(client, project,
                                        run_autoloop=autoloop, max_iter=max_iter)
@@ -195,7 +195,7 @@ def approve_prd_cmd(client: str, project: str, autoloop: bool, max_iter: int) ->
 @click.option("--max-iter", default=10, type=int)
 def autoloop_cmd(client: str, project: str, max_iter: int) -> None:
     """Drive every backlog ticket through awaiting_approval. Stops at the human gate."""
-    console.rule(f"[bold cyan]openclaw autoloop {client}/{project}")
+    console.rule(f"[bold cyan]consilo autoloop {client}/{project}")
     r = task_lifecycle.autoloop(client, project, max_iter=max_iter)
     _print_autoloop(r)
 
@@ -229,7 +229,7 @@ def worker_cmd(interval: int, max_iter_per_project: int, once: bool) -> None:
 
     Heartbeats are visible at /ops on the dashboard.
     """
-    console.rule(f"[bold cyan]openclaw worker interval={interval}s")
+    console.rule(f"[bold cyan]consilo worker interval={interval}s")
     r = worker_mod.run(interval=interval,
                        max_iter_per_project=max_iter_per_project, once=once)
     console.print(f"[green]worker:[/] {r['worker_id']} stopped after "

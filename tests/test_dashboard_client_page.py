@@ -1,9 +1,9 @@
 from __future__ import annotations
 from fastapi.testclient import TestClient
-from openclaw.dashboard.server import app
-from openclaw.schemas import Client, Ticket
-from openclaw.vault import client_dir, ensure_project_skeleton
-from openclaw import kanban
+from consilo.dashboard.server import app
+from consilo.schemas import Client, Ticket
+from consilo.vault import client_dir, ensure_project_skeleton
+from consilo import kanban
 import yaml
 
 

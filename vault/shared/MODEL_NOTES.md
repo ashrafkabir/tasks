@@ -1,4 +1,4 @@
-# OpenClaw — Model notes
+# Consilo — Model notes
 
 ## Chat model: gemma-4-26B-A4B-it (Q4_K_M GGUF)
 - Path: `/home/aifactory/models/gemma-4-26B-A4B-it-UD-Q4_K_M.gguf`
@@ -20,7 +20,7 @@
 ## Stub mode (slice)
 - Both LLM and Embedder run in stub mode by default. Stub LLM emits a
   deterministic deck-outline / review-JSON based on a hash signature; stub
-  Embedder emits a SHA-256-derived L2-normalized vector of `OPENCLAW_EMBED_DIM`
+  Embedder emits a SHA-256-derived L2-normalized vector of `CONSILO_EMBED_DIM`
   dimensions (default 384).
 - Audit traces capture `"llm_mode": "stub"` so downstream consumers can never
   mistake stub outputs for live model outputs.
@@ -28,6 +28,6 @@
 ## Switching to live mode
 1. `make llama-chat` (foreground)
 2. `make llama-embed` (foreground, second terminal)
-3. In `.env`: `OPENCLAW_LLM_MODE=live`, `OPENCLAW_EMBED_MODE=live`
+3. In `.env`: `CONSILO_LLM_MODE=live`, `CONSILO_EMBED_MODE=live`
 4. `make healthz` should show `2 ok / 0 fail`.
 5. `make slice` will now drive the real Gemma model end-to-end.

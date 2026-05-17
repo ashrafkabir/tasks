@@ -3,9 +3,9 @@ from pathlib import Path
 import yaml
 import pytest
 
-from openclaw import task_lifecycle, kanban
-from openclaw.agents import planner, interviewer
-from openclaw.vault import project_dir
+from consilo import task_lifecycle, kanban
+from consilo.agents import planner, interviewer
+from consilo.vault import project_dir
 
 
 PRD_BODY = """\
@@ -114,7 +114,7 @@ def test_approve_prd_without_plan_section_errors(tmp_workspace):
 
 
 def test_autoloop_drives_all_backlog_to_awaiting(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     task_lifecycle.start_task("acme", "board-pitch")
     (project_dir("acme", "board-pitch") / "prd.md").write_text(PRD_BODY)
     task_lifecycle.approve_prd("acme", "board-pitch")
@@ -127,7 +127,7 @@ def test_autoloop_drives_all_backlog_to_awaiting(tmp_workspace, monkeypatch):
 
 
 def test_autoloop_respects_max_iter(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     task_lifecycle.start_task("acme", "board-pitch")
     (project_dir("acme", "board-pitch") / "prd.md").write_text(PRD_BODY)
     task_lifecycle.approve_prd("acme", "board-pitch")
@@ -139,7 +139,7 @@ def test_autoloop_respects_max_iter(tmp_workspace, monkeypatch):
 
 
 def test_approve_prd_with_autoloop_combined(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     task_lifecycle.start_task("acme", "board-pitch")
     (project_dir("acme", "board-pitch") / "prd.md").write_text(PRD_BODY)
     r = task_lifecycle.approve_prd("acme", "board-pitch", run_autoloop=True)

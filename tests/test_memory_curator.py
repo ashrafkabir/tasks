@@ -1,14 +1,14 @@
 from __future__ import annotations
 import json
-from openclaw.ingest import ingest, InboundMessage
-from openclaw.agents import memory_curator
-from openclaw.vault import client_dir
-from openclaw import sqlite_store, qdrant_store
+from consilo.ingest import ingest, InboundMessage
+from consilo.agents import memory_curator
+from consilo.vault import client_dir
+from consilo import sqlite_store, qdrant_store
 
 
 def _seed_two_events(monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
     ingest(InboundMessage(
         source="telegram", chat_id="42", message_id="1",
         sender="ashraf",
@@ -44,7 +44,7 @@ def test_curator_extracts_facts_and_persists(tmp_workspace, monkeypatch):
     assert len(curated) == 2
 
     # Audit JSON written.
-    from openclaw.config import get_settings
+    from consilo.config import get_settings
     audit_dir = get_settings().vault_dir / "shared" / "_curation" / "acme"
     files = list(audit_dir.glob("*.json"))
     assert len(files) == 1
@@ -78,7 +78,7 @@ def test_curator_facts_searchable_in_qdrant(tmp_workspace, monkeypatch):
     collection (proves memory is wired into the same retrieval surface as events)."""
     _seed_two_events(monkeypatch)
     memory_curator.run("acme")
-    from openclaw.embed import Embedder
+    from consilo.embed import Embedder
     e = Embedder()
     qvec = e.embed(["modernization budget"])[0]
     hits = qdrant_store.search("acme", qvec, limit=10)
@@ -88,8 +88,8 @@ def test_curator_facts_searchable_in_qdrant(tmp_workspace, monkeypatch):
 
 
 def test_curator_picks_up_new_events_after_first_run(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
     ingest(InboundMessage(
         source="telegram", chat_id="42", message_id="1",
         sender="ashraf", text="First event about budget",

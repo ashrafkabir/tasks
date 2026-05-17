@@ -2,11 +2,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import pytest
-from openclaw import service, replay
-from openclaw.schemas import Ticket, Project
-from openclaw.vault import ensure_project_skeleton, project_dir
-from openclaw import kanban, sqlite_store
-from openclaw.ingest import ingest, InboundMessage
+from consilo import service, replay
+from consilo.schemas import Ticket, Project
+from consilo.vault import ensure_project_skeleton, project_dir
+from consilo import kanban, sqlite_store
+from consilo.ingest import ingest, InboundMessage
 import yaml
 
 
@@ -48,13 +48,13 @@ def test_replay_reviewer_run(tmp_workspace):
 
 
 def test_replay_briefer_run(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
     _seed()
     ingest(InboundMessage(
         source="telegram", chat_id="42", message_id="m1",
         sender="x", text="Acme CFO confirmed budget."))
-    from openclaw.agents import briefer
+    from consilo.agents import briefer
     first = briefer.run("acme", "digital-platform")
 
     res = replay.replay(run_id=first["run_id"], client="acme",

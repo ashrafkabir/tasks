@@ -1,7 +1,7 @@
 """OC-009/OC-013/OC-014 — LLM client (OpenAI-compat, talks to llama-server).
 
 Two modes:
-  - live: talks to llama-server at OPENCLAW_LLM_BASE_URL.
+  - live: talks to llama-server at CONSILO_LLM_BASE_URL.
   - stub: deterministic local responder, used for tests and the AFK proving slice
     when no llama-server is up. Stub responses are clearly marked in the audit
     trace so they cannot be confused with live output.
@@ -25,7 +25,7 @@ class LLMClient:
 
     @property
     def mode(self) -> str:
-        return self.s.OPENCLAW_LLM_MODE.lower()
+        return self.s.CONSILO_LLM_MODE.lower()
 
     def chat(self, system: str, user: str, *, max_tokens: int = 1024,
              temperature: float = 0.2) -> dict[str, Any]:
@@ -35,9 +35,9 @@ class LLMClient:
 
     def _live_chat(self, system: str, user: str, *, max_tokens: int,
                    temperature: float) -> dict[str, Any]:
-        url = f"{self.s.OPENCLAW_LLM_BASE_URL.rstrip('/')}/chat/completions"
+        url = f"{self.s.CONSILO_LLM_BASE_URL.rstrip('/')}/chat/completions"
         payload = {
-            "model": self.s.OPENCLAW_LLM_MODEL,
+            "model": self.s.CONSILO_LLM_MODEL,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
@@ -45,7 +45,7 @@ class LLMClient:
             "max_tokens": max_tokens,
             "temperature": temperature,
         }
-        headers = {"Authorization": f"Bearer {self.s.OPENCLAW_LLM_API_KEY}"}
+        headers = {"Authorization": f"Bearer {self.s.CONSILO_LLM_API_KEY}"}
         try:
             r = httpx.post(url, json=payload, headers=headers, timeout=120)
             r.raise_for_status()
@@ -55,7 +55,7 @@ class LLMClient:
         msg = data["choices"][0]["message"]["content"]
         return {
             "mode": "live",
-            "model": self.s.OPENCLAW_LLM_MODEL,
+            "model": self.s.CONSILO_LLM_MODEL,
             "content": msg,
             "raw": data,
         }

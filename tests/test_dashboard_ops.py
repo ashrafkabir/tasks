@@ -2,10 +2,10 @@ from __future__ import annotations
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 
-from openclaw.dashboard.server import app
-from openclaw.dashboard import health as health_probe
-from openclaw import task_lifecycle, worker, sqlite_store
-from openclaw.vault import project_dir
+from consilo.dashboard.server import app
+from consilo.dashboard import health as health_probe
+from consilo import task_lifecycle, worker, sqlite_store
+from consilo.vault import project_dir
 
 
 def _client():
@@ -42,7 +42,7 @@ def test_ops_feed_json_empty(tmp_workspace):
 
 def test_ops_page_renders(tmp_workspace, monkeypatch):
     health_probe._CACHE.clear()
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     # Seed one engagement, run one tick to produce activity rows.
     task_lifecycle.start_task("acme", "digital-platform")
     pd = project_dir("acme", "digital-platform")

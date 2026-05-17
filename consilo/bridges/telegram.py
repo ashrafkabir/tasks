@@ -5,7 +5,7 @@ No third-party Telegram SDK; raw httpx against the Bot API.
 Inbound: each text message → ingest pipeline. If sender is the configured
 operator, slash commands /ticket, /run, /approve are dispatched.
 
-Outbound: `send_message(token, chat_id, text)` — used by openclaw.notify.
+Outbound: `send_message(token, chat_id, text)` — used by consilo.notify.
 """
 from __future__ import annotations
 import os
@@ -100,5 +100,5 @@ def run_polling(once: bool = False, timeout: int = 25) -> None:
 
 
 if __name__ == "__main__":
-    console.rule("[bold cyan]openclaw telegram bridge")
+    console.rule("[bold cyan]consilo telegram bridge")
     run_polling()

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# OC-028 — Bring the OpenClaw dashboard online over a Cloudflared Tunnel
+# OC-028 — Bring the Consilo dashboard online over a Cloudflared Tunnel
 # fronted by Cloudflare Access (free tier, single-user).
 #
 # Prereqs (one-time, in your Cloudflare account dashboard):
@@ -10,7 +10,7 @@
 #
 # This script does the local plumbing only:
 #   - logs in (browser-based, one-time)
-#   - creates a tunnel named "openclaw" (idempotent)
+#   - creates a tunnel named "consilo" (idempotent)
 #   - prints the tunnel UUID for your config.yml
 #   - starts the tunnel in the foreground
 #
@@ -19,7 +19,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 CLOUDFLARED="${CLOUDFLARED_BIN:-/home/aifactory/cloudflared}"
-TUNNEL_NAME="${OPENCLAW_TUNNEL_NAME:-openclaw}"
+TUNNEL_NAME="${CONSILO_TUNNEL_NAME:-consilo}"
 CONFIG="${HOME}/.cloudflared/config.yml"
 
 if [ ! -x "$CLOUDFLARED" ]; then
@@ -57,7 +57,7 @@ if [ ! -f "$CONFIG" ]; then
   echo "    \$EDITOR ~/.cloudflared/config.yml   # set hostname"
   echo
   echo "Then add the DNS route:"
-  echo "    $CLOUDFLARED tunnel route dns $TUNNEL_NAME openclaw.<your-zone>.com"
+  echo "    $CLOUDFLARED tunnel route dns $TUNNEL_NAME consilo.<your-zone>.com"
   echo
   exit 0
 fi

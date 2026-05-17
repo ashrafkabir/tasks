@@ -24,10 +24,10 @@ def ensure_repo() -> Path:
     repo.mkdir(parents=True, exist_ok=True)
     if not (repo / ".git").exists():
         _run(["git", "init", "-q", "-b", "main"], cwd=repo)
-        _run(["git", "config", "user.email", "openclaw@local"], cwd=repo)
-        _run(["git", "config", "user.name", "OpenClaw"], cwd=repo)
+        _run(["git", "config", "user.email", "consilo@local"], cwd=repo)
+        _run(["git", "config", "user.name", "Consilo"], cwd=repo)
         readme = repo / "README.md"
-        readme.write_text("# OpenClaw tasks repo\n\nApproved artifacts and audit traces.\n")
+        readme.write_text("# Consilo tasks repo\n\nApproved artifacts and audit traces.\n")
         _run(["git", "add", "README.md"], cwd=repo)
         _run(["git", "commit", "-q", "-m", "init: tasks repo"], cwd=repo)
     return repo

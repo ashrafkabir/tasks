@@ -9,4 +9,4 @@ if [ -z "${TELEGRAM_BOT_TOKEN:-}" ]; then
   exit 1
 fi
 
-exec .venv/bin/python -m openclaw.bridges.telegram
+exec .venv/bin/python -m consilo.bridges.telegram

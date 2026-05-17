@@ -29,7 +29,7 @@ def get_sink() -> list[dict[str, Any]]:
 
 def _format(ticket: Ticket) -> str:
     return (
-        f"OpenClaw — ticket awaiting approval\n"
+        f"Consilo — ticket awaiting approval\n"
         f"  id      : {ticket.id}\n"
         f"  client  : {ticket.client}\n"
         f"  project : {ticket.project}\n"
@@ -39,7 +39,7 @@ def _format(ticket: Ticket) -> str:
 
 
 def _mode() -> str:
-    return os.getenv("OPENCLAW_NOTIFY_MODE", "stub").lower()
+    return os.getenv("CONSILO_NOTIFY_MODE", "stub").lower()
 
 
 def notify_awaiting_approval(ticket: Ticket) -> list[dict[str, Any]]:

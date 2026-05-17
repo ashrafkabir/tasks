@@ -1,9 +1,9 @@
 """Shared service layer — run_slice + approve.
 
 Used by:
-  - openclaw.cli (terminal driver)
-  - openclaw.bridges.{telegram,whatsapp} (chat command handlers)
-  - openclaw.dashboard.server (HTMX dashboard)
+  - consilo.cli (terminal driver)
+  - consilo.bridges.{telegram,whatsapp} (chat command handlers)
+  - consilo.dashboard.server (HTMX dashboard)
 
 Keeping this in one place means a slash command, a CLI invocation, and a
 dashboard button all hit the same code path and produce the same audit trail.

@@ -1,4 +1,4 @@
-# OpenClaw — System PRD (one page)
+# Consilo — System PRD (one page)
 
 **Status:** Draft v0.1 — pending user review
 **Date:** 2026-05-03
@@ -43,7 +43,7 @@ machine.
 | Remote dashboard access | Cloudflared Tunnel + Cloudflare Access (free) |
 | Chat | Telegram Bot API + WhatsApp Cloud API (free tier) |
 | VCS | GitHub private repo |
-| Orchestration wrapper | OpenClaw (local agentic framework) |
+| Orchestration wrapper | Consilo (local agentic framework) |
 | Service runtime | Docker Compose |
 | Backend lang | Python (FastAPI) |
 | Frontend | HTMX + Alpine + Tailwind |
@@ -58,7 +58,7 @@ machine.
                               │ writes           │ reads
         ┌─────────────────────┴─────┐    ┌───────┴────────────────────┐
         │       Orchestrator        │    │   Agents (per role)        │
-        │  (OpenClaw, FastAPI)      │◄──►│  Implementer, Reviewer,    │
+        │  (Consilo, FastAPI)      │◄──►│  Implementer, Reviewer,    │
         │  Kanban + tickets + audit │    │  Memory-Curator, Briefer   │
         └────────┬───────────┬──────┘    └─────────┬──────────────────┘
                  │           │                      │
@@ -89,7 +89,7 @@ machine.
 
 ## 7. Vault layout (assumption — confirm)
 ```
-openclaw/
+consilo/
 ├── vault/
 │   ├── shared/
 │   │   ├── system_prd.md

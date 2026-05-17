@@ -2,9 +2,9 @@ from __future__ import annotations
 from unittest.mock import patch, MagicMock
 import json
 
-from openclaw.bridges import telegram, whatsapp
-from openclaw.bridges import server as bridge_server
-from openclaw.vault import events_dir, kanban_path
+from consilo.bridges import telegram, whatsapp
+from consilo.bridges import server as bridge_server
+from consilo.vault import events_dir, kanban_path
 
 
 # ---------- Telegram ----------
@@ -23,8 +23,8 @@ def _tg_update(text: str, chat_id: int = 42, message_id: int = 1) -> dict:
 
 
 def test_telegram_inbound_text_creates_event(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
     monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "test-token")
     # No operator chat configured → don't try to reply on slash commands.
     monkeypatch.delenv("TELEGRAM_OPERATOR_CHAT_ID", raising=False)
@@ -33,7 +33,7 @@ def test_telegram_inbound_text_creates_event(tmp_workspace, monkeypatch):
     fake.json.return_value = {"ok": True, "result": [_tg_update("Acme update from CFO")]}
     fake.raise_for_status.return_value = None
 
-    with patch("openclaw.bridges.telegram.httpx.get", return_value=fake):
+    with patch("consilo.bridges.telegram.httpx.get", return_value=fake):
         telegram.run_polling(once=True, timeout=0)
 
     evs = list(events_dir("acme", "digital-platform").glob("*.md"))
@@ -42,8 +42,8 @@ def test_telegram_inbound_text_creates_event(tmp_workspace, monkeypatch):
 
 
 def test_telegram_ticket_command_spawns_and_replies(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
     monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "test-token")
     monkeypatch.setenv("TELEGRAM_OPERATOR_CHAT_ID", "42")
 
@@ -60,8 +60,8 @@ def test_telegram_ticket_command_spawns_and_replies(tmp_workspace, monkeypatch):
         m.json.return_value = {"ok": True}
         return m
 
-    with patch("openclaw.bridges.telegram.httpx.get", return_value=get_mock), \
-         patch("openclaw.bridges.telegram.httpx.post", side_effect=fake_post):
+    with patch("consilo.bridges.telegram.httpx.get", return_value=get_mock), \
+         patch("consilo.bridges.telegram.httpx.post", side_effect=fake_post):
         telegram.run_polling(once=True, timeout=0)
 
     backlog = list(kanban_path("acme", "digital-platform", "backlog").glob("*.yaml"))
@@ -86,8 +86,8 @@ def _wa_payload(text: str, chat: str = "12025550100@s.whatsapp.net") -> dict:
 
 
 def test_wa_webhook_inbound_creates_event(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
 
     from fastapi.testclient import TestClient
     client = TestClient(bridge_server.app)
@@ -103,8 +103,8 @@ def test_wa_webhook_inbound_creates_event(tmp_workspace, monkeypatch):
 
 
 def test_wa_webhook_ticket_command_from_operator(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
     monkeypatch.setenv("WUZAPI_OPERATOR_JID", "12025550100@s.whatsapp.net")
     # No WUZAPI_BASE_URL/TOKEN → reply send is skipped, command still processed.
     monkeypatch.delenv("WUZAPI_BASE_URL", raising=False)
@@ -120,8 +120,8 @@ def test_wa_webhook_ticket_command_from_operator(tmp_workspace, monkeypatch):
 
 
 def test_wa_webhook_secret_enforced(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
     monkeypatch.setenv("WUZAPI_WEBHOOK_SECRET", "s3cr3t")
 
     from fastapi.testclient import TestClient

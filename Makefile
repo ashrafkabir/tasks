@@ -18,37 +18,37 @@ seed:
 	$(PY) -m seed.seed_acme
 
 slice: seed
-	$(PY) -m openclaw.cli run-slice
+	$(PY) -m consilo.cli run-slice
 
 approve:
-	$(PY) -m openclaw.cli approve OC-T-001 --apply
+	$(PY) -m consilo.cli approve OC-T-001 --apply
 
 curate-memory:
-	$(PY) -m openclaw.cli curate-memory --client acme
+	$(PY) -m consilo.cli curate-memory --client acme
 
 brief:
-	$(PY) -m openclaw.cli brief --client acme --project digital-platform
+	$(PY) -m consilo.cli brief --client acme --project digital-platform
 
 search-monitor:
-	$(PY) -m openclaw.cli search-monitor --all
+	$(PY) -m consilo.cli search-monitor --all
 
 start-task:
-	$(PY) -m openclaw.cli start-task --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
+	$(PY) -m consilo.cli start-task --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
 
 compile-prd:
-	$(PY) -m openclaw.cli compile-prd --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
+	$(PY) -m consilo.cli compile-prd --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
 
 approve-prd:
-	$(PY) -m openclaw.cli approve-prd --client $${CLIENT:-acme} --project $${PROJECT:-new-task} --autoloop
+	$(PY) -m consilo.cli approve-prd --client $${CLIENT:-acme} --project $${PROJECT:-new-task} --autoloop
 
 autoloop:
-	$(PY) -m openclaw.cli autoloop --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
+	$(PY) -m consilo.cli autoloop --client $${CLIENT:-acme} --project $${PROJECT:-new-task}
 
 worker:
-	$(PY) -m openclaw.cli worker --interval $${INTERVAL:-300}
+	$(PY) -m consilo.cli worker --interval $${INTERVAL:-300}
 
 worker-once:
-	$(PY) -m openclaw.cli worker --once
+	$(PY) -m consilo.cli worker --once
 
 compose-up:
 	docker compose up -d
@@ -60,7 +60,7 @@ compose-logs:
 	docker compose logs -f --tail=200
 
 compose-build:
-	docker compose build openclaw-bridge openclaw-dashboard
+	docker compose build consilo-bridge consilo-dashboard
 
 test:
 	$(PY) -m pytest

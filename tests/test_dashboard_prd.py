@@ -1,8 +1,8 @@
 from __future__ import annotations
 from fastapi.testclient import TestClient
-from openclaw.dashboard.server import app
-from openclaw import task_lifecycle, kanban
-from openclaw.vault import project_dir
+from consilo.dashboard.server import app
+from consilo import task_lifecycle, kanban
+from consilo.vault import project_dir
 import yaml
 
 
@@ -56,7 +56,7 @@ def test_prd_save_writes_answers(tmp_workspace):
 
 
 def test_prd_compile_then_approve_via_dashboard(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     task_lifecycle.start_task("contoso", "board-pitch")
     pd = project_dir("contoso", "board-pitch")
     (pd / "prd_answers.yaml").write_text(
@@ -83,7 +83,7 @@ def test_prd_compile_then_approve_via_dashboard(tmp_workspace, monkeypatch):
 
 
 def test_board_autoloop_button(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     task_lifecycle.start_task("contoso", "board-pitch")
     pd = project_dir("contoso", "board-pitch")
     (pd / "prd.md").write_text(

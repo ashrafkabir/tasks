@@ -8,7 +8,7 @@ from ..vault import project_dir
 from .. import audit, sqlite_store
 
 
-SYSTEM_PROMPT = """You are the Implementer agent inside OpenClaw, a local-first agentic OS for a CxO consultant selling Visionet IT services.
+SYSTEM_PROMPT = """You are the Implementer agent inside Consilo, a local-first agentic OS for a CxO consultant selling Visionet IT services.
 Your job: produce a deck outline with speaker notes that a senior consultant can present to a client board.
 Constraints:
 - Markdown only.

@@ -1,4 +1,4 @@
-# OC-025 — OpenClaw service stack.
+# OC-025 — Consilo service stack.
 #
 # Containerizes the stateless support services that benefit from being managed
 # together. llama-server (chat + embeddings) intentionally stays on the host
@@ -15,8 +15,8 @@
 #   6333  Qdrant HTTP API
 #   8888  SearXNG
 #   8089  wuzapi (WhatsApp bridge)
-#   8090  OpenClaw bridge HTTP server (wuzapi webhook receiver)
-#   8091  OpenClaw dashboard
+#   8090  Consilo bridge HTTP server (wuzapi webhook receiver)
+#   8091  Consilo dashboard
 #
 # llama-servers stay on the host:
 #   8080  chat            (make llama-chat)
@@ -39,7 +39,7 @@ services:
     ports:
       - "127.0.0.1:8888:8080"
     environment:
-      - INSTANCE_NAME=openclaw-local
+      - INSTANCE_NAME=consilo-local
       - BASE_URL=http://127.0.0.1:8888/
     volumes:
       - ./infra/searxng:/etc/searxng:rw
@@ -55,45 +55,45 @@ services:
     volumes:
       - ./data/wuzapi:/app/dbdata
 
-  openclaw-bridge:
+  consilo-bridge:
     build:
       context: .
-      dockerfile: infra/Dockerfile.openclaw
-    image: openclaw:local
+      dockerfile: infra/Dockerfile.consilo
+    image: consilo:local
     restart: unless-stopped
-    command: ["python", "-m", "openclaw.bridges.server"]
+    command: ["python", "-m", "consilo.bridges.server"]
     network_mode: "host"             # so it can reach llama-server / wuzapi on 127.0.0.1
     env_file:
       - .env
     environment:
-      - OPENCLAW_BRIDGE_HOST=0.0.0.0
-      - OPENCLAW_BRIDGE_PORT=8090
+      - CONSILO_BRIDGE_HOST=0.0.0.0
+      - CONSILO_BRIDGE_PORT=8090
     volumes:
       - ./vault:/app/vault
       - ./data:/app/data
       - ./tasks:/app/tasks
     depends_on: [qdrant]
 
-  openclaw-dashboard:
-    image: openclaw:local
+  consilo-dashboard:
+    image: consilo:local
     restart: unless-stopped
-    command: ["python", "-m", "openclaw.dashboard.server"]
+    command: ["python", "-m", "consilo.dashboard.server"]
     network_mode: "host"
     env_file:
       - .env
     environment:
-      - OPENCLAW_DASHBOARD_HOST=0.0.0.0
-      - OPENCLAW_DASHBOARD_PORT=8091
+      - CONSILO_DASHBOARD_HOST=0.0.0.0
+      - CONSILO_DASHBOARD_PORT=8091
     volumes:
       - ./vault:/app/vault
       - ./data:/app/data
       - ./tasks:/app/tasks
-    depends_on: [qdrant, openclaw-bridge]
+    depends_on: [qdrant, consilo-bridge]
 
-  openclaw-worker:
-    image: openclaw:local
+  consilo-worker:
+    image: consilo:local
     restart: unless-stopped
-    command: ["python", "-m", "openclaw.cli", "worker", "--interval", "300"]
+    command: ["python", "-m", "consilo.cli", "worker", "--interval", "300"]
     network_mode: "host"
     env_file:
       - .env
@@ -101,4 +101,4 @@ services:
       - ./vault:/app/vault
       - ./data:/app/data
       - ./tasks:/app/tasks
-    depends_on: [qdrant, openclaw-bridge]
+    depends_on: [qdrant, consilo-bridge]

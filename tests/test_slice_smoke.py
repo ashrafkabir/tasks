@@ -8,10 +8,10 @@ import json
 from pathlib import Path
 from click.testing import CliRunner
 
-from openclaw.cli import main as cli
-from openclaw import audit
-from openclaw.vault import project_dir
-from openclaw.config import get_settings
+from consilo.cli import main as cli
+from consilo import audit
+from consilo.vault import project_dir
+from consilo.config import get_settings
 from seed.seed_acme import main as seed_main, CLIENT_SLUG, PROJECT_SLUG, TICKET_ID
 
 

@@ -8,14 +8,14 @@ import textwrap
 from datetime import datetime, timezone
 from pathlib import Path
 
-from openclaw.config import get_settings
-from openclaw.schemas import Client, Project, Ticket, Event
-from openclaw.vault import (
+from consilo.config import get_settings
+from consilo.schemas import Client, Project, Ticket, Event
+from consilo.vault import (
     client_dir, project_dir, ensure_project_skeleton,
     events_dir, kanban_path,
 )
-from openclaw import sqlite_store, qdrant_store, kanban
-from openclaw.embed import Embedder
+from consilo import sqlite_store, qdrant_store, kanban
+from consilo.embed import Embedder
 import yaml
 
 

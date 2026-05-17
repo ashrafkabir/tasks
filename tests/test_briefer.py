@@ -1,17 +1,17 @@
 from __future__ import annotations
 import json
 from pathlib import Path
-from openclaw.ingest import ingest, InboundMessage
-from openclaw.agents import briefer
-from openclaw.vault import briefs_dir, project_dir
-from openclaw.schemas import Project
-from openclaw.vault import client_dir, ensure_project_skeleton
+from consilo.ingest import ingest, InboundMessage
+from consilo.agents import briefer
+from consilo.vault import briefs_dir, project_dir
+from consilo.schemas import Project
+from consilo.vault import client_dir, ensure_project_skeleton
 import yaml
 
 
 def _seed_project_with_event(monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
     ensure_project_skeleton("acme", "digital-platform")
     proj = Project(slug="digital-platform", client="acme",
                    display_name="Digital Platform",
@@ -51,7 +51,7 @@ def test_briefer_uses_specific_event_id(tmp_workspace, monkeypatch):
         received_at="2026-05-04T18:00:00+00:00",
     ))
     # Pick the *first* (older) event explicitly.
-    from openclaw import sqlite_store
+    from consilo import sqlite_store
     events = sqlite_store.list_client_events("acme", "digital-platform")
     older = events[0]["id"]
     result = briefer.run("acme", "digital-platform", event_id=older)

@@ -24,7 +24,7 @@ from ..embed import Embedder
 from .. import qdrant_store, sqlite_store, audit
 
 
-SYSTEM_PROMPT = """You are the Briefer agent inside OpenClaw, producing a CxO briefing for a Visionet IT services consultant.
+SYSTEM_PROMPT = """You are the Briefer agent inside Consilo, producing a CxO briefing for a Visionet IT services consultant.
 Output strict markdown with this section order:
   # Briefing — <client>: <headline>
   ## Headline

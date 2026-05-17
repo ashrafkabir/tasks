@@ -4,8 +4,8 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 [ -f .env ] && set -a && . ./.env && set +a
 
-CHAT_URL="${OPENCLAW_LLM_BASE_URL:-http://127.0.0.1:8080/v1}"
-EMB_URL="${OPENCLAW_EMBED_BASE_URL:-http://127.0.0.1:8081/v1}"
+CHAT_URL="${CONSILO_LLM_BASE_URL:-http://127.0.0.1:8080/v1}"
+EMB_URL="${CONSILO_EMBED_BASE_URL:-http://127.0.0.1:8081/v1}"
 
 ok=0; fail=0
 check() {

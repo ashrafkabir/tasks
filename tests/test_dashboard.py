@@ -1,9 +1,9 @@
 from __future__ import annotations
 from fastapi.testclient import TestClient
-from openclaw.dashboard.server import app
-from openclaw import kanban
-from openclaw.schemas import Ticket
-from openclaw.vault import ensure_project_skeleton
+from consilo.dashboard.server import app
+from consilo import kanban
+from consilo.schemas import Ticket
+from consilo.vault import ensure_project_skeleton
 
 
 def _client():
@@ -67,7 +67,7 @@ def test_ticket_detail(tmp_workspace):
 
 
 def test_run_then_approve_via_dashboard(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     _seed_one_ticket()
     c = _client()
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
-from openclaw import notify, kanban
-from openclaw.schemas import Ticket
-from openclaw.vault import ensure_project_skeleton
+from consilo import notify, kanban
+from consilo.schemas import Ticket
+from consilo.vault import ensure_project_skeleton
 
 
 def _ticket() -> Ticket:
@@ -11,7 +11,7 @@ def _ticket() -> Ticket:
 
 def test_stub_notify_records_to_sink(tmp_workspace, monkeypatch):
     notify.reset_sink()
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     notify.notify_awaiting_approval(_ticket())
     sink = notify.get_sink()
     assert len(sink) == 1
@@ -21,7 +21,7 @@ def test_stub_notify_records_to_sink(tmp_workspace, monkeypatch):
 
 def test_kanban_transition_fires_notify(tmp_workspace, monkeypatch):
     notify.reset_sink()
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     ensure_project_skeleton("acme", "proj-a")
     kanban.write_ticket(_ticket())
     kanban.transition("acme", "proj-a", "OC-T-100", "in_progress")

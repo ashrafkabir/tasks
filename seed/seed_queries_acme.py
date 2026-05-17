@@ -5,7 +5,7 @@ skeleton already existing.
 """
 from __future__ import annotations
 import yaml
-from openclaw.vault import project_dir, ensure_project_skeleton
+from consilo.vault import project_dir, ensure_project_skeleton
 
 
 def main() -> None:

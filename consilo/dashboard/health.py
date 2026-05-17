@@ -34,23 +34,23 @@ def _probe(name: str, url: str, *, timeout: float = 1.5,
 
 
 def snapshot() -> dict:
-    """Probe all services that contribute to a working OpenClaw install.
+    """Probe all services that contribute to a working Consilo install.
     Skips Qdrant probe in embedded mode (no URL set)."""
     services: list[dict] = []
     services.append(_probe(
         "llama-chat",
-        f"{os.getenv('OPENCLAW_LLM_BASE_URL', 'http://127.0.0.1:8080/v1').rstrip('/')}/models",
+        f"{os.getenv('CONSILO_LLM_BASE_URL', 'http://127.0.0.1:8080/v1').rstrip('/')}/models",
     ))
     services.append(_probe(
         "llama-embed",
-        f"{os.getenv('OPENCLAW_EMBED_BASE_URL', 'http://127.0.0.1:8081/v1').rstrip('/')}/models",
+        f"{os.getenv('CONSILO_EMBED_BASE_URL', 'http://127.0.0.1:8081/v1').rstrip('/')}/models",
     ))
-    qurl = os.getenv("OPENCLAW_QDRANT_URL")
+    qurl = os.getenv("CONSILO_QDRANT_URL")
     if qurl:
         services.append(_probe("qdrant", f"{qurl.rstrip('/')}/healthz"))
     services.append(_probe(
         "bridge",
-        f"http://127.0.0.1:{os.getenv('OPENCLAW_BRIDGE_PORT', '8090')}/healthz",
+        f"http://127.0.0.1:{os.getenv('CONSILO_BRIDGE_PORT', '8090')}/healthz",
     ))
     services.append(_probe(
         "searxng",

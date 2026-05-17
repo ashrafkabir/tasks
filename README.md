@@ -1,4 +1,4 @@
-# OpenClaw
+# Consilo
 
 Local-first agentic OS for CxO consulting workflow. **No paid APIs, no cloud LLMs,
 no hosted memory.** Runs entirely on the operator's machine.
@@ -29,7 +29,7 @@ make worker             # background runner — drives every opted-in project's 
 make tunnel             # bring the dashboard online over Cloudflared + Access (free tier)
 ```
 
-CLI surface (`openclaw <subcommand> --help`):
+CLI surface (`consilo <subcommand> --help`):
 - `start-task`, `compile-prd`, `approve-prd`, `autoloop`
 - `run-slice`, `approve`, `status`
 - `curate-memory`, `brief`
@@ -40,29 +40,29 @@ CLI surface (`openclaw <subcommand> --help`):
 
 ```bash
 # 1. Create the project folder + answers skeleton.
-openclaw start-task --client contoso --project board-pitch
+consilo start-task --client contoso --project board-pitch
 
 # 2. Fill in vault/clients/contoso/projects/board-pitch/prd_answers.yaml
 #    Either run /grillme in Claude Code (interactive interviewer skill),
 #    or edit the YAML by hand.
 
 # 3. Render the PRD from answers.
-openclaw compile-prd --client contoso --project board-pitch
+consilo compile-prd --client contoso --project board-pitch
 
 # 4. Approve the plan → tickets spawn into backlog → autoloop drives each
 #    through implementer + reviewer → all land at awaiting_approval.
-openclaw approve-prd --client contoso --project board-pitch --autoloop
+consilo approve-prd --client contoso --project board-pitch --autoloop
 
 # 5. Approve each artifact at the human gate (still required — option iii).
-openclaw approve OC-T-001 --client contoso --project board-pitch --apply
-openclaw approve OC-T-002 --client contoso --project board-pitch --apply
+consilo approve OC-T-001 --client contoso --project board-pitch --apply
+consilo approve OC-T-002 --client contoso --project board-pitch --apply
 ```
 
 The `autoloop` only drives `backlog → awaiting_approval`. The final
 `approve` step that promotes a draft to an artifact and commits to the
 tasks repo remains human-gated, per `DECISIONS.md`.
 
-By default, the slice runs in `OPENCLAW_LLM_MODE=stub` (deterministic local
+By default, the slice runs in `CONSILO_LLM_MODE=stub` (deterministic local
 responder) so it works without a llama-server up. See `vault/shared/MODEL_NOTES.md`
 for the live-mode steps.
 
@@ -70,10 +70,10 @@ for the live-mode steps.
 
 `http://127.0.0.1:8091/ops` is a single-screen live view:
 - **Health strip** — green/red dots for llama-chat (:8080), llama-embed (:8081),
-  qdrant (if `OPENCLAW_QDRANT_URL` set), bridge server (:8090), searxng (:8888).
+  qdrant (if `CONSILO_QDRANT_URL` set), bridge server (:8090), searxng (:8888).
 - **Queue totals** — backlog / in_progress / awaiting_approval / approved / done,
   aggregated across all engagements.
-- **Workers** — live heartbeats from background `openclaw worker` instances.
+- **Workers** — live heartbeats from background `consilo worker` instances.
 - **Activity feed** — unified stream of events, agent runs, and approvals.
 - **Engagements** — every (client, project) with state counts.
 
@@ -96,7 +96,7 @@ Inbound chat messages and other events accumulate in
 distills them into durable per-client facts:
 
 ```bash
-openclaw curate-memory --client acme
+consilo curate-memory --client acme
 # or                  --client acme --project digital-platform
 # or                  --client acme --since 2026-04-01T00:00:00Z
 ```
@@ -127,13 +127,13 @@ UI assets (Tailwind, HTMX, Alpine) load from CDN. Behind a Cloudflared Tunnel
 
 ## Chat bridges (Telegram + WhatsApp)
 
-Both bridges share one ingest pipeline (`openclaw.ingest`). Inbound messages
+Both bridges share one ingest pipeline (`consilo.ingest`). Inbound messages
 become events in the vault; `/ticket <kind> <title>` from the operator chat
 spawns a ticket. Slash commands: `/ticket`, `/run`, `/approve`, `/status`.
 
-Outbound: when a ticket transitions to `awaiting_approval`, `openclaw.notify`
+Outbound: when a ticket transitions to `awaiting_approval`, `consilo.notify`
 broadcasts to all configured operator channels. Default
-`OPENCLAW_NOTIFY_MODE=stub` keeps things offline; flip to `live` once tokens
+`CONSILO_NOTIFY_MODE=stub` keeps things offline; flip to `live` once tokens
 are set.
 
 ```bash

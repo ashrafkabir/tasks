@@ -21,11 +21,11 @@ class Embedder:
 
     @property
     def mode(self) -> str:
-        return self.s.OPENCLAW_EMBED_MODE.lower()
+        return self.s.CONSILO_EMBED_MODE.lower()
 
     @property
     def dim(self) -> int:
-        return self.s.OPENCLAW_EMBED_DIM
+        return self.s.CONSILO_EMBED_DIM
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         if not texts:
@@ -35,9 +35,9 @@ class Embedder:
         return self._live_embed(texts)
 
     def _live_embed(self, texts: list[str]) -> list[list[float]]:
-        url = f"{self.s.OPENCLAW_EMBED_BASE_URL.rstrip('/')}/embeddings"
-        headers = {"Authorization": f"Bearer {self.s.OPENCLAW_EMBED_API_KEY}"}
-        payload = {"model": self.s.OPENCLAW_EMBED_MODEL, "input": texts}
+        url = f"{self.s.CONSILO_EMBED_BASE_URL.rstrip('/')}/embeddings"
+        headers = {"Authorization": f"Bearer {self.s.CONSILO_EMBED_API_KEY}"}
+        payload = {"model": self.s.CONSILO_EMBED_MODEL, "input": texts}
         try:
             r = httpx.post(url, json=payload, headers=headers, timeout=60)
             r.raise_for_status()

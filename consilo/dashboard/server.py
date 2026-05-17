@@ -28,7 +28,7 @@ from . import health as health_probe
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
-app = FastAPI(title="OpenClaw dashboard")
+app = FastAPI(title="Consilo dashboard")
 
 
 KANBAN_COLUMNS = [
@@ -450,8 +450,8 @@ def ops_feed_json(limit: int = 50) -> dict:
 
 def main() -> None:
     import uvicorn
-    host = os.getenv("OPENCLAW_DASHBOARD_HOST", "127.0.0.1")
-    port = int(os.getenv("OPENCLAW_DASHBOARD_PORT", "8091"))
+    host = os.getenv("CONSILO_DASHBOARD_HOST", "127.0.0.1")
+    port = int(os.getenv("CONSILO_DASHBOARD_PORT", "8091"))
     uvicorn.run(app, host=host, port=port, log_level="info")
 
 

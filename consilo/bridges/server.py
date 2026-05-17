@@ -3,14 +3,14 @@
 Currently hosts:
   POST /bridges/wa/webhook  — wuzapi → ingest pipeline
 
-Run with: `python -m openclaw.bridges.server` (uvicorn on 127.0.0.1:8090)
+Run with: `python -m consilo.bridges.server` (uvicorn on 127.0.0.1:8090)
 """
 from __future__ import annotations
 import os
 from fastapi import FastAPI, Request, HTTPException
 from .whatsapp import handle_webhook
 
-app = FastAPI(title="OpenClaw bridges")
+app = FastAPI(title="Consilo bridges")
 
 
 @app.get("/healthz")
@@ -31,8 +31,8 @@ async def wa_webhook(request: Request) -> dict:
 
 def main() -> None:
     import uvicorn
-    host = os.getenv("OPENCLAW_BRIDGE_HOST", "127.0.0.1")
-    port = int(os.getenv("OPENCLAW_BRIDGE_PORT", "8090"))
+    host = os.getenv("CONSILO_BRIDGE_HOST", "127.0.0.1")
+    port = int(os.getenv("CONSILO_BRIDGE_PORT", "8090"))
     uvicorn.run(app, host=host, port=port, log_level="info")
 
 

@@ -1,8 +1,8 @@
 from __future__ import annotations
 import pytest
-from openclaw.schemas import Ticket
-from openclaw import kanban
-from openclaw.vault import ensure_project_skeleton
+from consilo.schemas import Ticket
+from consilo import kanban
+from consilo.vault import ensure_project_skeleton
 
 
 def _make_ticket(state="backlog") -> Ticket:

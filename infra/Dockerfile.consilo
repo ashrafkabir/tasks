@@ -1,4 +1,4 @@
-# Minimal image for the OpenClaw Python services (bridge + dashboard).
+# Minimal image for the Consilo Python services (bridge + dashboard).
 # llama-server, Qdrant, SearXNG, wuzapi run as their own containers / on the host.
 FROM python:3.12-slim
 
@@ -15,10 +15,10 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml ./
-COPY openclaw ./openclaw
+COPY consilo ./consilo
 COPY seed ./seed
 
 RUN pip install --upgrade pip && pip install -e .
 
 # Healthcheck-friendly default; override via compose `command:`
-CMD ["python", "-m", "openclaw.dashboard.server"]
+CMD ["python", "-m", "consilo.dashboard.server"]

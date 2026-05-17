@@ -1,7 +1,7 @@
 """OC-008 — Qdrant wrapper. Per-client collection isolation.
 
 Uses qdrant-client in embedded persistent mode (`path=...`) by default — no
-running Qdrant server required for the slice. Set OPENCLAW_QDRANT_URL to point
+running Qdrant server required for the slice. Set CONSILO_QDRANT_URL to point
 at a running OSS server when scaling out.
 """
 from __future__ import annotations
@@ -23,8 +23,8 @@ def collection_name(client: str) -> str:
 
 def _client() -> QdrantClient:
     s = get_settings()
-    if s.OPENCLAW_QDRANT_URL:
-        return QdrantClient(url=s.OPENCLAW_QDRANT_URL)
+    if s.CONSILO_QDRANT_URL:
+        return QdrantClient(url=s.CONSILO_QDRANT_URL)
     s.qdrant_path.mkdir(parents=True, exist_ok=True)
     return QdrantClient(path=str(s.qdrant_path))
 

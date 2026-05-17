@@ -1,4 +1,4 @@
-# OpenClaw — System-build Kanban backlog (v0.1)
+# Consilo — System-build Kanban backlog (v0.1)
 
 Tickets to **build the system itself**. Each ticket is small enough to land in one
 focused implementation pass. IDs follow `OC-NNN`. Priority: P0 = blocks vertical
@@ -9,7 +9,7 @@ slice, P1 = first useful surface, P2 = polish/scale.
 - **E2 — Vault & schema:** directory layout, YAML schemas, validators.
 - **E3 — Memory:** SQLite event log, Qdrant collections, embedding service,
   ingest pipeline.
-- **E4 — Orchestrator:** OpenClaw wrapper, ticket lifecycle, agent runner, audit.
+- **E4 — Orchestrator:** Consilo wrapper, ticket lifecycle, agent runner, audit.
 - **E5 — Agents:** Implementer, Reviewer, Memory-Curator, Briefer.
 - **E6 — Dashboard:** FastAPI + HTMX board, ticket views, approval UI.
 - **E7 — Ingress:** Telegram bridge, WhatsApp bridge, SearXNG monitor.
@@ -29,14 +29,14 @@ slice, P1 = first useful surface, P2 = polish/scale.
 | OC-007 | E3 | SQLite schema + migrations (events, tickets, runs, audit) |
 | OC-008 | E3 | Qdrant local container + per-client collection helpers |
 | OC-009 | E3 | Embedding client (OpenAI-compat) + batch upsert from vault events |
-| OC-010 | E4 | OpenClaw wrapper: ticket model, transitions, file-backed kanban |
+| OC-010 | E4 | Consilo wrapper: ticket model, transitions, file-backed kanban |
 | OC-011 | E4 | Agent runner: cold-start context bundle (vault + Qdrant + SQLite) |
 | OC-012 | E4 | Audit writer: per-run JSON trace |
 | OC-013 | E5 | Implementer agent (deck-outline artifact w/ speaker notes) |
 | OC-014 | E5 | Reviewer agent (structured suggestion list) |
 | OC-015 | E4 | Approval gate: CLI `approve` command + state transition |
 | OC-016 | E8 | GitHub commit on approval (project branch) |
-| OC-017 | E4 | End-to-end CLI driver: `openclaw run-slice` |
+| OC-017 | E4 | End-to-end CLI driver: `consilo run-slice` |
 
 ### P1 — first useful surface
 | ID | Epic | Title | Status |

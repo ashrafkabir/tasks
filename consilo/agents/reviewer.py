@@ -8,7 +8,7 @@ from ..vault import project_dir
 from .. import audit, sqlite_store
 
 
-SYSTEM_PROMPT = """You are the Reviewer agent inside OpenClaw.
+SYSTEM_PROMPT = """You are the Reviewer agent inside Consilo.
 You critique a deck-outline draft against:
 - the source event (factual fidelity),
 - the project objective (relevance),

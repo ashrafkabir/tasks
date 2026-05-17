@@ -5,8 +5,8 @@ against a local SearXNG instance, dedupes results by URL hash (SQLite-backed),
 and ingests new results as events.
 
 Run on demand (one-shot, idempotent) — schedule with cron/systemd if recurring:
-    openclaw search-monitor --client acme --project digital-platform
-    openclaw search-monitor --all   # walks every client/project with queries.yaml
+    consilo search-monitor --client acme --project digital-platform
+    consilo search-monitor --all   # walks every client/project with queries.yaml
 """
 from __future__ import annotations
 import hashlib

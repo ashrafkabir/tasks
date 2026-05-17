@@ -8,7 +8,7 @@ agent.
 Limitations:
   - Curator replay is intentionally not supported here; clear the
     `curated_events` rows for the events you want to re-process and run
-    `openclaw curate-memory` instead.
+    `consilo curate-memory` instead.
   - Replay does NOT reconstruct the literal prompt that was sent
     originally — only what was durably persisted (event MD, project YAML,
     memory.md, Qdrant points). That's the right thing for "would this run
@@ -91,7 +91,7 @@ def replay(*, run_id: str, client: str | None = None,
     else:
         raise ValueError(
             f"replay not supported for agent {agent!r}. "
-            "Curator: clear curated_events rows and re-run `openclaw curate-memory`."
+            "Curator: clear curated_events rows and re-run `consilo curate-memory`."
         )
 
     new_audit_path = Path(result["audit_path"])

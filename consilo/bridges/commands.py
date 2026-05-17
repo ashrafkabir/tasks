@@ -27,7 +27,7 @@ from .. import kanban, service, task_lifecycle
 
 
 HELP_TEXT = (
-    "OpenClaw bot. Commands:\n"
+    "Consilo bot. Commands:\n"
     "  /ticket <kind> <title>\n"
     "  /run <ticket-id>\n"
     "  /approve <ticket-id>\n"
@@ -40,14 +40,14 @@ HELP_TEXT = (
 
 
 def _defaults() -> tuple[str, str]:
-    return (os.getenv("OPENCLAW_DEFAULT_CLIENT", ""),
-            os.getenv("OPENCLAW_DEFAULT_PROJECT", ""))
+    return (os.getenv("CONSILO_DEFAULT_CLIENT", ""),
+            os.getenv("CONSILO_DEFAULT_PROJECT", ""))
 
 
 def _cmd_status() -> str:
     client, project = _defaults()
     if not (client and project):
-        return "status failed: OPENCLAW_DEFAULT_CLIENT/PROJECT not set"
+        return "status failed: CONSILO_DEFAULT_CLIENT/PROJECT not set"
     try:
         tickets = kanban.list_tickets(client, project)
     except Exception as e:

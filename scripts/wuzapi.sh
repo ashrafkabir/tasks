@@ -27,7 +27,7 @@ fi
 
 # Pull-and-run idempotently. --rm so it cleans up; --restart=no for foreground.
 exec docker run --rm \
-  --name openclaw-wuzapi \
+  --name consilo-wuzapi \
   -p "127.0.0.1:${PORT}:8080" \
   -v "${DATA_DIR}:/app/dbdata" \
   -e WUZAPI_ADMIN_TOKEN="${WUZAPI_ADMIN_TOKEN:-change-me-admin-token}" \

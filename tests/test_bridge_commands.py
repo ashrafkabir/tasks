@@ -1,7 +1,7 @@
 from __future__ import annotations
-from openclaw.bridges import commands
-from openclaw import task_lifecycle, kanban
-from openclaw.vault import project_dir
+from consilo.bridges import commands
+from consilo import task_lifecycle, kanban
+from consilo.vault import project_dir
 
 
 PRD_BODY = """\
@@ -46,7 +46,7 @@ def test_compile_prd_via_chat(tmp_workspace):
 
 
 def test_approve_prd_via_chat_with_autoloop(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     task_lifecycle.start_task("contoso", "board-pitch")
     (project_dir("contoso", "board-pitch") / "prd.md").write_text(PRD_BODY)
     reply = commands.dispatch("/approve-prd contoso board-pitch autoloop")
@@ -59,7 +59,7 @@ def test_approve_prd_via_chat_with_autoloop(tmp_workspace, monkeypatch):
 
 
 def test_autoloop_command(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_NOTIFY_MODE", "stub")
+    monkeypatch.setenv("CONSILO_NOTIFY_MODE", "stub")
     task_lifecycle.start_task("contoso", "board-pitch")
     (project_dir("contoso", "board-pitch") / "prd.md").write_text(PRD_BODY)
     task_lifecycle.approve_prd("contoso", "board-pitch")

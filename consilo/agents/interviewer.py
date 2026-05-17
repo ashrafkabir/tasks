@@ -19,7 +19,7 @@ from ..vault import project_dir
 
 PRD_ANSWERS_SKELETON = """\
 # Fill in below, then run:
-#   openclaw compile-prd --client {client} --project {project}
+#   consilo compile-prd --client {client} --project {project}
 # Keep values terse, executive-grade. The grillme skill in Claude Code can
 # also fill this in by interview.
 client: {client}
@@ -125,7 +125,7 @@ def compile_prd(client: str, project: str) -> dict:
     if not ans_path.exists():
         raise FileNotFoundError(
             f"no prd_answers.yaml at {ans_path}. Run: "
-            f"openclaw start-task --client {client} --project {project}"
+            f"consilo start-task --client {client} --project {project}"
         )
     raw = yaml.safe_load(ans_path.read_text()) or {}
 

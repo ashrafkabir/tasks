@@ -1,4 +1,4 @@
-# OpenClaw — Costs
+# Consilo — Costs
 
 **Recurring monetary cost: $0.**
 

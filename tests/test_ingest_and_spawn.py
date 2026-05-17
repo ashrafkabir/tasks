@@ -1,12 +1,12 @@
 from __future__ import annotations
-from openclaw.ingest import ingest, InboundMessage
-from openclaw.vault import events_dir, kanban_path
-from openclaw import sqlite_store
+from consilo.ingest import ingest, InboundMessage
+from consilo.vault import events_dir, kanban_path
+from consilo import sqlite_store
 
 
 def test_plain_message_creates_event(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
 
     msg = InboundMessage(
         source="telegram", chat_id="42", message_id="1",
@@ -30,8 +30,8 @@ def test_plain_message_creates_event(tmp_workspace, monkeypatch):
 
 
 def test_ticket_command_spawns_ticket(tmp_workspace, monkeypatch):
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
 
     msg = InboundMessage(
         source="whatsapp", chat_id="12025550100@s.whatsapp.net", message_id="m1",
@@ -46,8 +46,8 @@ def test_ticket_command_spawns_ticket(tmp_workspace, monkeypatch):
 
 
 def test_unrouted_when_no_default(tmp_workspace, monkeypatch):
-    monkeypatch.delenv("OPENCLAW_DEFAULT_CLIENT", raising=False)
-    monkeypatch.delenv("OPENCLAW_DEFAULT_PROJECT", raising=False)
+    monkeypatch.delenv("CONSILO_DEFAULT_CLIENT", raising=False)
+    monkeypatch.delenv("CONSILO_DEFAULT_PROJECT", raising=False)
     msg = InboundMessage(
         source="telegram", chat_id="999", message_id="2",
         sender="stranger", text="random ping",
@@ -68,8 +68,8 @@ def test_explicit_route_overrides_default(tmp_workspace, monkeypatch):
              "client": "contoso", "project": "ai-rollout"},
         ],
     }))
-    monkeypatch.setenv("OPENCLAW_DEFAULT_CLIENT", "acme")
-    monkeypatch.setenv("OPENCLAW_DEFAULT_PROJECT", "digital-platform")
+    monkeypatch.setenv("CONSILO_DEFAULT_CLIENT", "acme")
+    monkeypatch.setenv("CONSILO_DEFAULT_PROJECT", "digital-platform")
 
     msg = InboundMessage(source="telegram", chat_id="7777", message_id="3",
                          sender="x", text="hello")

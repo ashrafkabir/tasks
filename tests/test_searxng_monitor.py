@@ -3,8 +3,8 @@ from unittest.mock import patch
 from pathlib import Path
 import yaml
 
-from openclaw.monitor import searxng
-from openclaw.vault import project_dir, ensure_project_skeleton, events_dir
+from consilo.monitor import searxng
+from consilo.vault import project_dir, ensure_project_skeleton, events_dir
 
 
 def _seed_queries(client="acme", project="digital-platform"):

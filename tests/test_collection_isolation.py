@@ -3,8 +3,8 @@
 Two clients with overlapping content must never appear in each other's results.
 """
 from __future__ import annotations
-from openclaw import qdrant_store
-from openclaw.embed import Embedder
+from consilo import qdrant_store
+from consilo.embed import Embedder
 
 
 def test_no_cross_client_leakage(tmp_workspace):

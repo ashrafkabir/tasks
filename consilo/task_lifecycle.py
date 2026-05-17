@@ -49,7 +49,7 @@ def start_task(client: str, project: str, *,
         "answers_path": str(answers_path),
         "next": (
             f"Fill in {answers_path} (use `/grillme` in Claude or edit by hand), "
-            f"then: openclaw compile-prd --client {client} --project {project}"
+            f"then: consilo compile-prd --client {client} --project {project}"
         ),
     }
 
@@ -66,14 +66,14 @@ def approve_prd(client: str, project: str, *,
 
     Approval here is the human OK on the *project plan*. The downstream
     ticket-by-ticket approval gate is unchanged: each artifact still requires
-    explicit `openclaw approve <ticket>` to commit/push.
+    explicit `consilo approve <ticket>` to commit/push.
     """
     pd = project_dir(client, project)
     prd_path = pd / "prd.md"
     if not prd_path.exists():
         raise FileNotFoundError(
             f"PRD not found at {prd_path}. "
-            f"Run: openclaw compile-prd --client {client} --project {project}"
+            f"Run: consilo compile-prd --client {client} --project {project}"
         )
 
     tickets, plan = planner.spawn_from_prd(client, project)
@@ -110,7 +110,7 @@ def approve_prd(client: str, project: str, *,
     else:
         out["next"] = (
             f"Run the autonomous loop with: "
-            f"openclaw autoloop --client {client} --project {project}"
+            f"consilo autoloop --client {client} --project {project}"
         )
     return out
 
@@ -148,7 +148,7 @@ def autoloop(client: str, project: str, *, max_iter: int = 10) -> dict:
         "processed": processed,
         "awaiting_approval": [t.id for t in awaiting],
         "next": (
-            f"Approve each: openclaw approve <ticket-id> "
+            f"Approve each: consilo approve <ticket-id> "
             f"--client {client} --project {project} --apply"
         ),
     }

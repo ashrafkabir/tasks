@@ -1,4 +1,4 @@
-# OpenClaw — Smallest vertical slice plan
+# Consilo — Smallest vertical slice plan
 
 **Goal:** prove the loop end-to-end with the minimum surface area. Everything below
 is required by the user spec for the first proving slice. Anything not listed is
@@ -12,7 +12,7 @@ explicitly deferred.
 5. one Implementer run → artifact draft
 6. one Reviewer run → suggestion list
 7. one suggestion captured in audit
-8. one approval gate (manual `openclaw approve OC-T-001`)
+8. one approval gate (manual `consilo approve OC-T-001`)
 9. one deck-outline artifact with speaker notes
    (`artifacts/decks/2026-05-03-acme-board-readout.md`)
 10. one audit trace (`audit/OC-T-001/<run-id>.json`)
@@ -32,7 +32,7 @@ explicitly deferred.
 [seed.py]                      → writes synthetic event into vault
    │
    ▼
-[openclaw run-slice]
+[consilo run-slice]
    │
    ├── load-context (cold)     ← reads client.yaml, project.yaml, event.md
    │                             + Qdrant nearest 8, + SQLite recent 20
@@ -46,10 +46,10 @@ explicitly deferred.
    │
    ├── transition → awaiting_approval (move ticket file)
    │
-   └── prints: "approve with: openclaw approve OC-T-001"
+   └── prints: "approve with: consilo approve OC-T-001"
         │
         ▼
-[openclaw approve OC-T-001]
+[consilo approve OC-T-001]
    │
    ├── apply suggestions? (y/N)  ← human gate
    ├── transition → approved → done
@@ -59,7 +59,7 @@ explicitly deferred.
 
 ## Files the slice will create (target tree)
 ```
-openclaw/
+consilo/
 ├── pyproject.toml
 ├── Makefile
 ├── .env.example
@@ -67,9 +67,9 @@ openclaw/
 │   ├── llama_chat_server.sh
 │   ├── llama_embed_server.sh
 │   └── healthz.sh
-├── openclaw/                           # python package
+├── consilo/                           # python package
 │   ├── __init__.py
-│   ├── cli.py                          # `openclaw` entrypoint
+│   ├── cli.py                          # `consilo` entrypoint
 │   ├── config.py
 │   ├── llm.py                          # OpenAI-compat client → llama-server
 │   ├── embed.py
@@ -94,7 +94,7 @@ openclaw/
 ```
 
 ## Acceptance for the slice
-- `make slice` (or `openclaw run-slice && openclaw approve OC-T-001`) completes with
+- `make slice` (or `consilo run-slice && consilo approve OC-T-001`) completes with
   exit 0 on a clean machine after `make bootstrap`.
 - `git log` on project branch shows the approval commit with the artifact diff.
 - `audit/OC-T-001/` contains ≥ 2 run JSONs (implementer + reviewer) and the
